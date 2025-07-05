@@ -149,7 +149,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
   }
 
   const handlePasswordSubmit = async () => {
-    const adminPassword = 'abc'
+    const adminPassword = 'nehsbiology'
 
     if (password === adminPassword) {
       if (!fbUser || !fbUser.uid) {
