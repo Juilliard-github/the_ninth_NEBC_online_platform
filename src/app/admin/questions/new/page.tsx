@@ -36,6 +36,11 @@ export default function NewQuestionPage() {
   const [orderOptions, setOrderOptions] = useState(['第一項', '第二項', '第三項', '第四項'].map((text, i) => ({id: generateId(),text})))
 
   const handleSave = async () => {
+    if (!question.trim()) {
+      toast.error('題目內容不可為空')
+      return
+    }
+
     const payload: Partial<Question> = {
       question,
       type,
@@ -47,29 +52,53 @@ export default function NewQuestionPage() {
     }
 
     if (type === 'single') {
+      if (options.slice(0,4).some(opt => !opt.trim())) {
+        toast.error('選項不可為空')
+        return
+      }
+      if (singleAnswer === -1) {
+        toast.error('請選擇答案')
+        return
+      }
       payload.options = options
       payload.answers = singleAnswer as number
     } else if (type === 'multiple') {
+      if (options.some(opt => !opt.trim())) {
+        toast.error('選項不可為空')
+        return
+      }
+      if (multipleAnswer.length === 0) {
+        toast.error('請選擇答案')
+        return
+      }
       payload.options = options
       payload.answers = multipleAnswer as number[]
     } else if (type === 'truefalse') {
+      if (trueFalseAnswer === null) {
+        toast.error('請選擇答案')
+        return
+      }
       payload.options = ['⭕️', '❌']
       payload.answers = trueFalseAnswer as boolean
     } else if (type === 'matching') {
-      if (matchingAnswer.includes(-1)) {
-        toast.error('❗ 請完成所有配對')
+      if (matchingAnswer.includes(-1) || matchingLeft.some(left => !left.trim()) || matchingRight.some(right => !right.trim())) {
+        toast.error('請完成所有配對')
         return
       }
       payload.left = matchingLeft
       payload.right = matchingRight
       payload.answers = matchingAnswer as number[]
     } else if (type === 'ordering') {
+      if (orderOptions.some(opt => !opt.text.trim())) {
+        toast.error('選項不可為空')
+        return
+      }
       payload.orderOptions = orderOptions.map(opt => opt.text)
       payload.answers = orderOptions.map((_, i) => i) as number[]
     }
 
     await addDoc(collection(db, 'questions'), payload)
-    toast.success('✅ 題目已建立')
+    toast.success('題目已建立')
     sessionStorage.setItem('questionListGroupType', groupType)
     setTimeout(() => router.push('/admin/questions/list'), 1000)
   }
@@ -88,14 +117,14 @@ export default function NewQuestionPage() {
 
   return (
     <main className="max-w-5xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">✏️ 建立新題目</h1>
+      <h1 className="text-2xl font-bold">➕ 新增題目</h1>
       <Toaster richColors position="bottom-right" />
 
       <label className="block mb-2 font-medium">題組包類型</label>
       <select
         value={groupType}
         onChange={e => setGroupType(e.target.value as Question['groupType'])}
-        className="mb-4 p-2 border rounded w-ful bg-zinc-200/10"
+        className="mb-4 p-2 border rounded w-ful bg-zinc-200/20"
       >
         {Object.entries(groupTypeLabels).map(([key, label]) => (
           <option key={key} value={key}>{label}</option>
@@ -106,7 +135,7 @@ export default function NewQuestionPage() {
       <select
         value={type}
         onChange={e => setType(e.target.value as Question['type'])}
-        className="mb-4 p-2 border rounded w-full bg-zinc-200/10"
+        className="mb-4 p-2 border rounded w-full bg-zinc-200/20"
       >
         {Object.entries(questionTypeLabels).map(([key, label]) => (
           <option key={key} value={key}>{label}</option>
@@ -117,17 +146,17 @@ export default function NewQuestionPage() {
       <textarea
         value={question}
         onChange={e => setQuestion(e.target.value)}
-        className="w-full border rounded p-2 bg-zinc-200/10"
+        className="w-full border rounded p-2 bg-zinc-200/20"
         rows={4}
       />
       <p className="block mt-4 font-medium">題目內容預覽</p>
-      <div className="mt-2 border p-4 rounded bg-zinc-200/10">{renderContent(question)}</div>
+      <div className="mt-2 border p-4 rounded bg-zinc-200/20">{renderContent(question)}</div>
 
       {(type === 'single' || type === 'multiple') && (
         <div>
           <label className="block mt-4 font-medium0">選項</label>
           {options.slice(0, type === 'single' ? 4 : 5).map((opt, idx) => (
-            <div key={idx} className="flex items-center gap-2 my-1 bg-zinc-200/10">
+            <div key={idx} className="flex items-center gap-2 my-1 bg-zinc-200/20">
               <input
                 type={type === 'single' ? 'radio' : 'checkbox'}
                 name="answer"
@@ -146,7 +175,7 @@ export default function NewQuestionPage() {
                   newOptions[idx] = e.target.value
                   setOptions(newOptions)
                 }}
-                className="flex-1 border p-2 rounded bg-zinc-200/10"
+                className="flex-1 border p-2 rounded bg-zinc-200/20"
               />
             </div>
           ))}
@@ -156,7 +185,7 @@ export default function NewQuestionPage() {
       {type === 'truefalse' && (
         <div className="space-y-2 mt-2">
           {[true, false].map((val, idx) => (
-            <label key={idx} className="flex items-center gap-2 bg-zinc-200/10">
+            <label key={idx} className="flex items-center gap-2 bg-zinc-200/20">
               <input
                 type="radio"
                 name="truefalse"
@@ -170,7 +199,7 @@ export default function NewQuestionPage() {
       )}
 
       {type === 'matching' && (
-        <div className="mt-6 bg-zinc-200/10">
+        <div className="mt-6 bg-zinc-200/20">
           <MatchingCanvas
             left={matchingLeft}
             right={matchingRight}
@@ -186,7 +215,7 @@ export default function NewQuestionPage() {
       )}
 
       {type === 'ordering' && (
-        <div className="mt-4 bg-zinc-200/10">
+        <div className="mt-4 bg-zinc-200/20">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -201,7 +230,7 @@ export default function NewQuestionPage() {
               items={orderOptions.map(opt => opt.id)}
               strategy={verticalListSortingStrategy}
             >
-              <div className="space-y-2 bg-zinc-200/10">
+              <div className="space-y-2 bg-zinc-200/20">
                 {orderOptions.map((opt, idx) => (
                   <SortableItem key={opt.id} id={opt.id}>
                     <input
@@ -211,7 +240,7 @@ export default function NewQuestionPage() {
                         updated[idx] = { ...updated[idx], text: e.target.value }
                         setOrderOptions(updated)
                       }}
-                      className="w-full border rounded p-2 bg-zinc-200/10"
+                      className="w-full border rounded p-2 bg-zinc-200/20"
                     />
                   </SortableItem>
                 ))}
@@ -225,11 +254,11 @@ export default function NewQuestionPage() {
       <textarea
         value={explanation}
         onChange={e => setExplanation(e.target.value)}
-        className="w-full border rounded p-2 bg-zinc-200/10"
+        className="w-full border rounded p-2 bg-zinc-200/20"
         rows={4}
       />
       <p className="block mt-4 font-medium">詳解預覽：</p>
-      <div className="mt-2 border p-4 rounded bg-zinc-200/10">{renderContent(explanation)}</div>
+      <div className="mt-2 border p-4 rounded bg-zinc-200/20">{renderContent(explanation)}</div>
 
       <Button variant="create" onClick={handleSave} className="mt-4 bg-fuchsia-900 text-white px-3 py-1">建立題目 💾</Button>
     </main>

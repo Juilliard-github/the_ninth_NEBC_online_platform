@@ -128,7 +128,7 @@ export default function ProfilePage() {
           <AvatarImage src={avatarUrl || 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg'} />
           {/*<AvatarFallback>{nickname ? nickname.slice(0, 2) : name ? name.slice(0, 2) : '👤'}</AvatarFallback>*/}
         </Avatar>
-        <Input className="bg-zinc-200/10" type="file" accept="image/*" onChange={handleAvatarChange} />
+        <Input className="bg-zinc-200/20" type="file" accept="image/*" onChange={handleAvatarChange} />
       </div>
 
       <div className="space-y-2">
@@ -143,17 +143,17 @@ export default function ProfilePage() {
 
       <div className="space-y-2">
         <label className="block text-sm font-medium">名稱</label>
-        <Input className="bg-zinc-200/10" value={name} readOnly/>
+        <Input className="bg-zinc-200/20" value={name} readOnly/>
       </div>
 
       <div className="space-y-2">
         <label className="block text-sm font-medium">暱稱</label>
-        <Input className="bg-zinc-200/10" value={nickname} onChange={(e) => setNickname(e.target.value)} />
+        <Input className="bg-zinc-200/20" value={nickname} onChange={(e) => setNickname(e.target.value)} />
       </div>
 
       <div className="space-y-2">
         <label className="block text-sm font-medium">自我介紹</label>
-        <Textarea className="bg-zinc-200/10" value={bio} onChange={(e) => setBio(e.target.value)} rows={4} maxLength={300} />
+        <Textarea className="bg-zinc-200/20" value={bio} onChange={(e) => setBio(e.target.value)} rows={4} maxLength={300} />
       </div>
 
       {/* 顯示上傳進度條 */}

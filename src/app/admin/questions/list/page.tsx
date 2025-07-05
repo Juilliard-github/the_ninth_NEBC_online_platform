@@ -73,7 +73,7 @@ export default function QuestionListPage() {
         deleted: false,
         updatedAt: Timestamp.now()
       })
-      toast.success('✅ 題目已還原')
+      toast.success('題目已還原')
       fetchQuestions()
     } catch (e) {
       toast.error('❌ 還原失敗')
@@ -112,7 +112,7 @@ export default function QuestionListPage() {
 
         <div className="flex flex-col md:flex-row items-center gap-4">
           <Select value={groupType} onValueChange={val => setGroupType(val as Question['groupType'])}>
-            <SelectTrigger className="w-60 rounded-xl border-gray-300 bg-zinc-200/10">
+            <SelectTrigger className="w-60 rounded-xl border-gray-300 bg-zinc-200/20">
               <SelectValue placeholder="選擇分類" />
             </SelectTrigger>
             <SelectContent>
@@ -140,7 +140,7 @@ export default function QuestionListPage() {
             {filteredQuestions.map((q, index) => (
               <div
                 key={q.id}
-                className="border border-gray-300 bg-zinc-200/10 rounded-2xl p-5 shadow-md space-y-4 transition"
+                className="border border-gray-300 bg-zinc-200/20 rounded-2xl p-5 shadow-md space-y-4 transition"
               >
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-lg">Q{index + 1}</span>

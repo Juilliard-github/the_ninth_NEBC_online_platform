@@ -152,7 +152,7 @@ export default function NewExamPage() {
       ...(timeLimit ? { timeLimit: parseFloat(timeLimit) } : {}),
       deleted: false
     })
-    toast.success('✅ 考試已建立')
+    toast.success('考試已建立')
     sessionStorage.setItem('examListGroupType', groupType)
     setTimeout(() => router.push(`/admin/exams/list`), 1000)
   }
@@ -161,13 +161,13 @@ export default function NewExamPage() {
     <ProtectedRoute>
       <main className="p-6 max-w-5xl mx-auto space-y-6">
         <Toaster richColors closeButton position="bottom-right" />
-        <h1 className="text-2xl font-bold">📝 建立新考試</h1>
+        <h1 className="text-2xl font-bold">💯 新增考試</h1>
 
-        <Input value={title} className="bg-zinc-200/10" onChange={e => setTitle(e.target.value)} placeholder="考試標題（必填）" />
-        <Textarea value={description} className="bg-zinc-200/10" onChange={e => setDescription(e.target.value)} placeholder="考試說明（選填）" />
+        <Input value={title} className="bg-zinc-200/20" onChange={e => setTitle(e.target.value)} placeholder="考試標題（必填）" />
+        <Textarea value={description} className="bg-zinc-200/20" onChange={e => setDescription(e.target.value)} placeholder="考試說明（選填）" />
 
         <Select value={groupType} onValueChange={handleGroupTypeChange}>
-          <SelectTrigger className="w-60 mt-2 bg-zinc-200/10">
+          <SelectTrigger className="w-60 mt-2 bg-zinc-200/20">
             <SelectValue placeholder="選擇分類" />
           </SelectTrigger>
           <SelectContent>
@@ -182,7 +182,7 @@ export default function NewExamPage() {
             <div>
               <label className="block text-sm mb-1">測驗開始時間</label>
               <Input
-                className='bg-zinc-200/10'
+                className='bg-zinc-200/20'
                 type="datetime-local"
                 value={openAt}
                 onChange={e => setOpenAt(e.target.value)}
@@ -191,7 +191,7 @@ export default function NewExamPage() {
             <div>
               <label className="block text-sm mb-1">測驗結束時間</label>
               <Input
-                className='bg-zinc-200/10'
+                className='bg-zinc-200/20'
                 type="datetime-local"
                 value={closeAt}
                 onChange={e => setCloseAt(e.target.value)}
@@ -200,7 +200,7 @@ export default function NewExamPage() {
             <div>
               <label className="block text-sm mb-1">解答公布時間</label>
               <Input
-                className='bg-zinc-200/10'
+                className='bg-zinc-200/20'
                 type="datetime-local"
                 value={answerAvailableAt}
                 onChange={e => setAnswerAvailableAt(e.target.value)}
@@ -208,7 +208,7 @@ export default function NewExamPage() {
             </div>
             <label className="block text-sm mb-1">作答時長限制（分鐘）</label>
             <Input
-              className='bg-zinc-200/10'
+              className='bg-zinc-200/20'
               type="number"
               step="0.1"
               min="0"
@@ -223,7 +223,7 @@ export default function NewExamPage() {
         ) : (
           <>
             {filteredQuestions.map((q, index) => (
-              <div key={q.id} className="bg-white border border-gray-300 rounded-xl p-4 shadow space-y-3 bg-zinc-200/10">
+              <div key={q.id} className={`${!!selectedIds[q.id] ? 'bg-zinc-200/20' : 'bg-transparent'} border border-gray-300 rounded-xl p-4 shadow space-y-3 bg-zinc-200/20`}>
                 <div className="flex items-center gap-4">
                   <input type="checkbox" checked={!!selectedIds[q.id]} onChange={() => toggleSelect(q.id)} />
                   {groupType !== 'highschool' && (
@@ -237,12 +237,12 @@ export default function NewExamPage() {
                     />
                   )}
                 </div>
-                <div className="text-gray-600">
+                <div>
                   Q{index + 1} #{groupTypeLabels[q.groupType]} - {questionTypeLabels[q.type]}
                 </div>
                 <div className="text-sm font-medium">{renderContent(q.question)}</div>
                 {renderOptions(q)}
-                <Accordion type="single" collapsible className="mt-3">
+                <Accordion type="single" collapsible className="mt-3 text-gray-400">
                   <AccordionItem value="explanation">
                     <AccordionTrigger>📖 查看詳解</AccordionTrigger>
                     <AccordionContent>

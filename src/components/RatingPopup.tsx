@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { auth, db } from '@/lib/firebase'
-import { setDoc, doc, getDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore'
+import { setDoc, doc, getDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { toast, Toaster } from 'sonner'
-import { useRouter } from 'next/navigation'  
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/button'
+
 const RatingPopup = ({ onRatingSubmit }: { onRatingSubmit: () => void }) => {
-const router = useRouter()
+  const router = useRouter()
   const [rating, setRating] = useState<number | null>(null)
 
   // 儲存用戶評價到 Firestore
@@ -13,7 +14,11 @@ const router = useRouter()
     const userId = auth.currentUser?.uid
 
     if (!userId) {
-      toast.error('用戶未登入')
+      toast.error('請先登入')
+      setTimeout(() => {
+        // After showing the toast, force a page reload
+        window.location.reload()
+      }, 1000)
       return
     }
 
@@ -41,7 +46,6 @@ const router = useRouter()
       })
       toast.success('感謝您的評價！')
       onRatingSubmit()  // 提交評分後調用這個回調來更新平均評分
-      // 顯示成功提示
     } catch (err) {
       console.error('儲存評價失敗', err)
       toast.error('儲存評價失敗')
@@ -49,8 +53,8 @@ const router = useRouter()
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <Toaster richColors position='bottom-right'/>
+    <div className="top-40 fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+      <Toaster richColors position="bottom-right" />
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
         <h2 className="text-lg font-bold mb-4 text-black">請給我們評價</h2>
         <div className="flex justify-center mb-4">
@@ -58,7 +62,7 @@ const router = useRouter()
             <Button
               key={star}
               onClick={() => setRating(star)}
-              className={`text-3xl ${rating >= star ? 'text-yellow-500' : 'text-gray-300'}`}
+              className={`shadow-none text-3xl ${rating >= star ? 'text-yellow-500' : 'text-gray-300'}`}
             >
               ★
             </Button>
@@ -70,7 +74,7 @@ const router = useRouter()
             className="bg-blue-500 text-white py-2 px-4 rounded"
             disabled={rating === null}
           >
-            提交評價
+          提交評價
           </Button>
         </div>
       </div>

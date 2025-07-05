@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore"
+import { string } from "firebase/firestore"
 
 export type userType = {
   uid: string
@@ -9,11 +9,11 @@ export type userType = {
   totalScore: number
   correctRate: number // 正確率 = 正確題數 / 總題數
   totalQuestions: number
-  updatedAt: Timestamp
-  createdAt: Timestamp
-  lastRatedAt: Timestamp
+  updatedAt: string
+  createdAt: string
+  lastRatedAt: string
   theme: string
   correctCount: number
   email: string
+  deleted: boolean
 }
-

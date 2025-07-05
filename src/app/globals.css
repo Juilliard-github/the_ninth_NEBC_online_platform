@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -151,6 +150,7 @@
   }
 }
 
+
 @keyframes colorShift {
   0% { background-color: rgb(223, 135, 135); }
   14% { background-color: rgb(231, 194, 124); }
@@ -160,4 +160,75 @@
   71% { background-color: rgb(121, 91, 143); }
   85% { background-color: rgb(208, 147, 208); }
   100% { background-color: rgb(124, 17, 17); }
+}
+
+@keyframes explode {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(2);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes spark {
+  0% {
+    transform: scaleX(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(0);
+    opacity: 0.5;
+  }
+}
+
+.animate-spark {
+  animation: spark 1.5s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+  0% {
+    border-color: #ffe195; /* Yellow */
+  }
+  25% {
+    border-color: #e276ac; /* Pink */
+  }
+  50% {
+    border-color: #759fe4; /* Blue */
+  }
+  75% {
+    border-color: #4f8a65; /* Green */
+  }
+  100% {
+    border-color: #ffe092; /* Yellow (loops back to start) */
+  }
+}
+
+.animate-borderGlow {
+  animation: borderGlow 3s ease-in-out infinite;
 }

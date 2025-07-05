@@ -8,7 +8,7 @@ import { useUser } from '@/hooks/useUser'
 import { Button } from '@/components/button'
 import { Card } from '@/components/card'
 import Link from 'next/link'
-import { toast } from 'sonner'
+import { toast, Toaster } from 'sonner'
 import { Question, renderContent, renderOptions } from '@/types/question'
 import {
   Accordion,
@@ -83,6 +83,7 @@ export default function FavoriteManagePage() {
 
   return (
     <main className="p-6 max-w-5xl mx-auto space-y-10">
+      <Toaster richColors position='bottom-right'/>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">⭐ 錯題收藏管理</h1>
         <Link href="/user/favorites/practice">👉 開始練習</Link>
@@ -100,7 +101,7 @@ export default function FavoriteManagePage() {
             ) : (
               <div className="space-y-4">
                 {active.map(q => (
-                  <Card key={q.id} className="p-4 space-y-2 bg-zinc-200/10">
+                  <Card key={q.id} className="p-4 space-y-2 bg-zinc-200/20">
                     <div className="font-medium">{renderContent(q.question)}</div>
                     {renderOptions(q)}
                     <details className="mt-2 text-sm text-gray-400">
@@ -126,7 +127,7 @@ export default function FavoriteManagePage() {
                 {trashed.map(q => (
                 <div
                   key={q.id}
-                  className="border border-gray-300 bg-zinc-200/10 rounded-2xl p-5 shadow-md space-y-4 transition"
+                  className="border border-gray-300 bg-zinc-200/20 rounded-2xl p-5 shadow-md space-y-4 transition"
                 >
                 <div className="flex justify-between items-center">
                   <div className="inline-flex justify-center gap-2">

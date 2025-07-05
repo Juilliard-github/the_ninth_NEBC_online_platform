@@ -77,6 +77,11 @@ export default function EditQuestionPage() {
   }, [questionId])
 
   const handleSave = async () => {
+    if (!question.trim()) {
+      toast.error('題目內容不可為空')
+      return
+    }
+
     let payload: Partial<Question> = {
       groupType,
       type,
@@ -86,45 +91,55 @@ export default function EditQuestionPage() {
     }
 
     if (type === 'single') {
-      payload = {
-        ...payload,
-        options, 
-        answers: singleAnswer as number
-      }
-    } else if (type === 'multiple') {
-      payload = {
-        ...payload,
-        options, 
-        answers: multipleAnswer as number[]
-      }
-    } else if (type === 'truefalse') {
-      payload = {
-        ...payload,
-        options: ['⭕️', '❌'], 
-        answers: trueFalseAnswer as boolean
-      }
-    } else if (type === 'ordering') {
-      payload = {
-        ...payload,
-        orderOptions: orderOptions.map(opt => opt.text), 
-        answers: orderOptions.map((_, i) => i) as number[],
-      }
-    } else if (type === 'matching') {
-      if (matchingAnswer.includes(-1)) {
-        toast.error('❗ 請完成所有配對')
+      if (options.slice(0,4).some(opt => !opt.trim())) {
+        toast.error('選項不可為空')
         return
       }
-      payload = {
-        ...payload,
-        left: matchingLeft,
-        right: matchingRight,
-        answers: matchingAnswer as number[],
+      if (singleAnswer === -1) {
+        toast.error('請選擇答案')
+        return
       }
+      payload.options = options
+      payload.answers = singleAnswer as number
+    } else if (type === 'multiple') {
+      if (options.some(opt => !opt.trim())) {
+        toast.error('選項不可為空')
+        return
+      }
+      if (multipleAnswer.length === 0) {
+        toast.error('請選擇答案')
+        return
+      }
+      payload.options = options
+      payload.answers = multipleAnswer as number[]
+    } else if (type === 'truefalse') {
+      if (trueFalseAnswer === null) {
+        toast.error('請選擇答案')
+        return
+      }
+      payload.options = ['⭕️', '❌']
+      payload.answers = trueFalseAnswer as boolean
+    } else if (type === 'matching') {
+      if (matchingAnswer.includes(-1) || matchingLeft.some(left => !left.trim()) || matchingRight.some(right => !right.trim())) {
+        toast.error('請完成所有配對')
+        return
+      }
+      payload.left = matchingLeft
+      payload.right = matchingRight
+      payload.answers = matchingAnswer as number[]
+    } else if (type === 'ordering') {
+      if (orderOptions.some(opt => !opt.text.trim())) {
+        toast.error('選項不可為空')
+        return
+      }
+      payload.orderOptions = orderOptions.map(opt => opt.text)
+      payload.answers = orderOptions.map((_, i) => i) as number[]
     }
+
     try {
       await updateDoc(doc(db, 'questions', questionId!), payload)
 
-      toast.success('✅ 更新成功')
+      toast.success('更新成功')
       router.push('/admin/questions/list') // 更新成功後跳轉
     } catch (err) {
       console.error(err)
@@ -144,28 +159,28 @@ export default function EditQuestionPage() {
 
   return (
     <main className="max-w-5xl mx-auto p-6 space-y-6">
-      <Toaster />
+      <Toaster richColors position='bottom-right'/>
       <h1 className="text-2xl font-bold">✏️ 編輯題目</h1>
 
       <label>題組包類型</label>
-      <select value={groupType} onChange={e => setGroupType(e.target.value as any)} className="mb-4 w-full border p-2 rounded bg-zinc-200/10">
+      <select value={groupType} onChange={e => setGroupType(e.target.value as any)} className="mb-4 w-full border p-2 rounded bg-zinc-200/20">
         {Object.entries(groupTypeLabels).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
       </select>
 
       <label>題目類型</label>
-      <select value={type} onChange={e => setType(e.target.value as any)} className="mb-4 w-full border p-2 rounded bg-zinc-200/10">
+      <select value={type} onChange={e => setType(e.target.value as any)} className="mb-4 w-full border p-2 rounded bg-zinc-200/20">
         {Object.entries(questionTypeLabels).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
       </select>
 
       <label>題目內容</label>
-      <textarea value={question} onChange={e => setQuestion(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/10" />
-      <div className="border p-2 bg-gray-50 rounded bg-zinc-200/10">{renderContent(question)}</div>
+      <textarea value={question} onChange={e => setQuestion(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/20" />
+      <div className="border p-2 bg-gray-50 rounded bg-zinc-200/20">{renderContent(question)}</div>
 
       {(type === 'single' || type === 'multiple') && (
         <>
           <label className="mt-4">選項</label>
           {options.slice(0, type === 'single' ? 4 : 5).map((opt, i) => (
-            <div key={i} className="flex items-center gap-2 my-1 bg-zinc-200/10">
+            <div key={i} className="flex items-center gap-2 my-1 bg-zinc-200/20">
               <input type={type === 'single' ? 'radio' : 'checkbox'}
                 checked={type === 'single' ? singleAnswer === i : multipleAnswer.includes(i)}
                 onChange={() => toggleAnswer(i)}
@@ -178,7 +193,7 @@ export default function EditQuestionPage() {
                   arr[i] = e.target.value
                   setOptions(arr)
                 }}
-                className="flex-1 border p-2 rounded bg-zinc-200/10"
+                className="flex-1 border p-2 rounded bg-zinc-200/20"
               />
             </div>
           ))}
@@ -188,7 +203,7 @@ export default function EditQuestionPage() {
       {type === 'truefalse' && (
         <div className="flex gap-4 mt-2">
           {[true, false].map((v, i) => (
-            <label key={i} className="flex items-center gap-2 bg-zinc-200/10">
+            <label key={i} className="flex items-center gap-2 bg-zinc-200/20">
               <input type="radio" checked={trueFalseAnswer === v} onChange={() => setTrueFalseAnswer(v)} />
               <span>{v ? '⭕️' : '❌'}</span>
             </label>
@@ -197,7 +212,7 @@ export default function EditQuestionPage() {
       )}
 
       {type === 'ordering' && (
-        <div className="mt-4 bg-zinc-200/10">
+        <div className="mt-4 bg-zinc-200/20">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -222,7 +237,7 @@ export default function EditQuestionPage() {
                         updated[idx] = { ...updated[idx], text: e.target.value }
                         setOrderOptions(updated)
                       }}
-                      className="w-full border rounded p-2 bg-zinc-200/10"
+                      className="w-full border rounded p-2 bg-zinc-200/20"
                     />
                   </SortableItem>
                 ))}
@@ -233,7 +248,7 @@ export default function EditQuestionPage() {
       )}
 
       {type === 'matching' && (
-        <div className="mt-4 bg-zinc-200/10">
+        <div className="mt-4 bg-zinc-200/20">
           <MatchingCanvas
             left={matchingLeft}
             right={matchingRight}
@@ -249,8 +264,8 @@ export default function EditQuestionPage() {
       )}
 
       <label className="mt-4">詳解</label>
-      <textarea value={explanation} onChange={e => setExplanation(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/10" />
-      <div className="border p-2 bg-gray-50 rounded bg-zinc-200/10">{renderContent(explanation)}</div>
+      <textarea value={explanation} onChange={e => setExplanation(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/20" />
+      <div className="border p-2 bg-gray-50 rounded bg-zinc-200/20">{renderContent(explanation)}</div>
 
       <Button variant="submit" onClick={handleSave} className="mt-4 bg-slate-700 text-white px-3 py-1">💾 儲存更新</Button>
     </main>

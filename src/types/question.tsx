@@ -193,7 +193,7 @@ export function renderFeedback(q: Question, userAns: any){
         {q.options?.slice(0, 4).map((opt, i) => {
           const isCorrect = q.answers === i
           const userSelected = userAns === i
-          let style = 'bg-zinc-200/10'
+          let style = 'bg-zinc-200/20'
           if (isCorrect) style = 'bg-green-500'
           if (userSelected && !isCorrect) style = 'bg-red-500'
           return (
@@ -221,7 +221,7 @@ export function renderFeedback(q: Question, userAns: any){
         {q.options?.map((opt, i) => {
           const isCorrect = Array.isArray(q.answers) && q.answers.includes(i)
           const userSelected = Array.isArray(userAns) && userAns.includes(i)
-          let style = 'bg-zinc-200/10'
+          let style = 'bg-zinc-200/20'
           if (isCorrect) style = 'bg-green-500'
           if (userSelected && !isCorrect) style = 'bg-red-500'
           return (
@@ -248,7 +248,7 @@ export function renderFeedback(q: Question, userAns: any){
         {[0, 1].map((val, i) => {
           const isCorrect = q.answers === val
           const isSelected = userAns === val
-          let style = 'bg-zinc-200/10'
+          let style = 'bg-zinc-200/20'
           if (isCorrect) style = 'bg-green-500'
           if (isSelected && !isCorrect) style = 'bg-red-500'
           return (

@@ -52,7 +52,7 @@ export default function TrashPage() {
         updatedAt: Timestamp.now()
       })
       setQuestions(prev => prev.filter(q => q.id !== id))
-      toast.success('✅ 已還原題目')
+      toast.success('已還原題目')
       fetchDeletedQuestions()
     } catch (err) {
       console.error(err)
@@ -90,7 +90,7 @@ export default function TrashPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-5">
       <Toaster richColors closeButton position="bottom-right" />
-      <h1 className="text-2xl font-bold">🗃️ 資源回收桶</h1>
+      <h1 className="text-2xl font-bold">🗑️ 題目垃圾桶</h1>
 
       {loading ? (
         <p className="text-gray-400 text-center">載入中...</p>
@@ -101,7 +101,7 @@ export default function TrashPage() {
           {questions.map(q => (
              <div
               key={q.id}
-              className="border border-gray-300 bg-zinc-200/10 rounded-2xl p-5 mb-5 shadow-md space-y-4 transition"
+              className="border border-gray-300 bg-zinc-200/20 rounded-2xl p-5 mb-5 shadow-md space-y-4 transition"
             >
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-lg">

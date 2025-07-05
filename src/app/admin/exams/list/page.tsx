@@ -100,7 +100,7 @@ export default function ManageExamsPage() {
         deleted: false,
         updatedAt: Timestamp.now()
       })
-      toast.success('✅ 題目已還原')
+      toast.success('題目已還原')
       fetchExams()
     } catch (e) {
       toast.error('❌ 還原失敗')
@@ -149,7 +149,7 @@ export default function ManageExamsPage() {
 
       <div className="flex flex-col sm:flex-row gap-4">
         <Select value={groupType!} onValueChange={(val) => setGroupType(val as Exam['groupType'])}>
-          <SelectTrigger className="w-[180px] bg-zinc-200/10">
+          <SelectTrigger className="w-[180px] bg-zinc-200/20">
             <SelectValue placeholder="選擇類型" />
           </SelectTrigger>
           <SelectContent>
@@ -160,7 +160,7 @@ export default function ManageExamsPage() {
         </Select>
 
         <Input
-          className="flex-1 bg-zinc-200/10"
+          className="flex-1 bg-zinc-200/20"
           placeholder="輸入關鍵字搜尋"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -173,7 +173,7 @@ export default function ManageExamsPage() {
       {filteredExams.map((exam) => (
         <div
           key={exam.id}
-          className="border border-gray-300 rounded-xl p-4 shadow space-y-3 bg-zinc-200/10"
+          className="border border-gray-300 rounded-xl p-4 shadow space-y-3 bg-zinc-200/20"
         >            
         <div className="flex justify-between items-center">
           <span className="font-semibold text-lg">

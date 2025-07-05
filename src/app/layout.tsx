@@ -1,7 +1,7 @@
 import './globals.css' // ✅ 確保 Tailwind 有載入
 import type { Metadata } from 'next'
 import LayoutClient from './LayoutClient'
-import { ThemeProvider } from '@/context/ThemeContext'
+import { ThemeProvider } from '@/hooks/ThemeContext'
 
 export const metadata: Metadata = {
   title: 'NEBC 題庫系統',

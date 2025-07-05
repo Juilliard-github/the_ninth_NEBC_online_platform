@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore'
 import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/button'
-import { toast } from 'sonner'
+import { toast, Toaster } from 'sonner'
 import { Exam } from '@/types/exam'
 import { AnimatePresence } from 'framer-motion'
 import { Card } from '@/components/card'
@@ -134,7 +134,7 @@ export default function PracticeListPage() {
 
   const renderExamCard = (exam: Exam, action?: React.ReactNode) => {
     return (
-      <Card key={exam.id} className="bg-zinc-200/10 border border-gray-300 rounded-2xl p-4 shadow-md space-y-3">
+      <Card key={exam.id} className="bg-zinc-200/20 border border-gray-300 rounded-2xl p-4 shadow-md space-y-3">
         <h2 className="text-xl font-bold">{exam.title || '未命名考試'}</h2>
         <div className="text-sm text-gray-400">{exam.description || '無說明'}</div>
         <div className="text-sm space-y-1">
@@ -171,6 +171,7 @@ export default function PracticeListPage() {
 
   return (
     <div className="px-4 pb-40 min-h-screen max-w-5xl mx-auto space-y-6">
+      <Toaster richColors position='bottom-right'/>
       <AnimatePresence>
             {/* 三種狀態考試 */}
             {[{

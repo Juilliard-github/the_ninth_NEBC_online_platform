@@ -42,7 +42,7 @@ export default function DeletedExamsPage() {
         deleted: false,
         updatedAt: Timestamp.now()
       })
-      toast.success('✅ 已還原考試')
+      toast.success('已還原考試')
       setDeletedExams(prev => prev.filter(e => e.id !== id))
     } catch (e) {
       toast.error('❌ 還原失敗')
@@ -59,7 +59,7 @@ export default function DeletedExamsPage() {
         onClick: async () => {
           try {
             await deleteDoc(doc(db, 'exams', id))
-            toast.success('✅ 已永久刪除考試')
+            toast.success('已永久刪除考試')
             setDeletedExams(prev => prev.filter(e => e.id !== id))
           } catch (e) {
             toast.error('❌ 永久刪除失敗')
@@ -93,14 +93,14 @@ export default function DeletedExamsPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">已刪除的考試</h1>
+      <h1 className="text-2xl font-bold">🗑️ 考試垃圾桶</h1>
       <Toaster richColors closeButton position="bottom-right" />
       {loading && <p>載入中...</p>}
       {!loading && deletedExams.length === 0 && (
         <p>沒有已刪除的考試</p>
       )}
       {deletedExams.map((exam) => (
-        <div key={exam.id} className="border p-4 rounded bg-zinc-200/10">
+        <div key={exam.id} className="border p-4 rounded bg-zinc-200/20">
           <div className="flex justify-between items-center">
           <span className="font-semibold text-lg">
             {exam.title || '未命名考試'}

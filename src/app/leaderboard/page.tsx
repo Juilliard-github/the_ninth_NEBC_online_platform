@@ -59,7 +59,7 @@ export default function GlobalLeaderboardPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">🏆 總成績排行榜</h1>
+      <h1 className="text-2xl font-bold mb-4">🏆 成績排行榜</h1>
       
       <div className="mb-4">
         <label htmlFor="sortBy" className="mr-2">排序依據：</label>
@@ -67,7 +67,7 @@ export default function GlobalLeaderboardPage() {
           id="sortBy"
           value={sortBy}
           onChange={e => setSortBy(e.target.value as 'correctRate' | 'totalScore')}
-          className="p-2 border rounded bg-zinc-200/10"
+          className="p-2 border rounded bg-zinc-200/20"
         >
           <option value="totalScore">分數</option>
           <option value="correctRate">正確率</option>
@@ -79,7 +79,7 @@ export default function GlobalLeaderboardPage() {
       ) : (
         <table className="min-w-full table-auto shadow">
           <thead>
-            <tr className="border-b bg-zinc-200/10">
+            <tr className="border-b bg-zinc-200/20">
               <th className="px-4 py-2">排名</th>
               <th className="px-4 py-2">頭像</th>
               <th className="px-4 py-2">暱稱</th>
@@ -90,14 +90,14 @@ export default function GlobalLeaderboardPage() {
           </thead>
           <tbody>
             {leaderboard.map((user, idx) => {
-              let rankEmoji = '🔟'
+              let rankEmoji = '❓'
               if (idx === 0) rankEmoji = '🥇'
               else if (idx === 1) rankEmoji = '🥈'
               else if (idx === 2) rankEmoji = '🥉'
 
               return (
                 <tr key={user.uid} className="border-b text-center">
-                  <td className="px-4 py-2 text-3xl">{idx < 3 ? rankEmoji : idx + 1}</td>
+                  {idx < 3 ? (<td className="px-4 py-2 text-3xl">{rankEmoji}</td>) : (<td className="px-4 py-2">#{idx + 1}</td>)}
                   <td className="px-4 py-2 flex justify-center items-center">
                     <img
                       src={user.avatarUrl || `https://avatars.dicebear.com/api/initials/${user.name}.svg`}

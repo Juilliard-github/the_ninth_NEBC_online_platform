@@ -140,7 +140,7 @@ export default function TakeExamPage() {
       ])
 
       setSubmitted(true)
-      toast.success('✅ 已提交')
+      toast.success('已提交')
       router.push(`/user/practice-list`)
     } catch (err) {
       console.error('提交作答失敗:', err)
@@ -177,7 +177,7 @@ export default function TakeExamPage() {
           ])
 
           setSubmitted(true)
-          toast.success('✅ 已提交')
+          toast.success('已提交')
           router.push(`/user/practice-list`)
         } catch (err) {
           console.error('提交作答失敗:', err)

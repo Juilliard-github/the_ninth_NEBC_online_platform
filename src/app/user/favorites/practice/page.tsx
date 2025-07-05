@@ -100,7 +100,7 @@ export default function FavoritePracticePage() {
           createdAt: Timestamp.now(),
           questionIds: questions.map(q => q.id),
         })
-        toast.success('✅ 已提交')
+        toast.success('已提交')
         router.push('/user/favorites/result')
       } catch (err) {
         console.error('提交作答失敗:', err)

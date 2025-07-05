@@ -176,7 +176,7 @@ export default function GuestbookPage() {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="想說點什麼呢...（最多 500 字）"
-            className="w-full border rounded p-2 bg-zinc-200/10"
+            className="w-full border rounded p-2 bg-zinc-200/20"
             rows={4}
             maxLength={500}
           />
@@ -198,7 +198,7 @@ export default function GuestbookPage() {
 
       <ul className="space-y-4">
         {messages.map((msg) => (
-          <li key={msg.id} className="bg-zinc-200/10 border rounded p-3 shadow break-words">
+          <li key={msg.id} className="bg-zinc-200/20 border rounded p-3 shadow break-words">
             <div className="flex items-start gap-2">
               {msg.userPhotoURL ? (
                 <Image

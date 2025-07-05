@@ -140,7 +140,7 @@ export default function MyResultPage() {
 
         await setDoc(uaRef, payload, {merge: true})
         await setDoc(userRef, userPayload, {merge: true})
-        toast.success('✅ 已更新成績')
+        toast.success('已更新成績')
       } catch (err) {
         console.error('更新成績失敗:', err)
         toast.error('更新成績失敗')
