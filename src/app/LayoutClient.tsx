@@ -13,11 +13,10 @@ import { useRouter } from 'next/navigation'
 import { toast, Toaster } from 'sonner'
 
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
-  const [currentTime, setCurrentTime] = useState<string | null>(null)
   const [isPopupVisible, setIsPopupVisible] = useState(false)
   const [averageRating, setAverageRating] = useState<number | null>(null)
   const { totalVisitors } = useVisitorStats()
-    const { incrementVisitorCount } = useVisitorCount();
+  const { incrementVisitorCount } = useVisitorCount()
   const onlineCount = useOnlineUserCount()
   const [fbUser, setFbUser] = useState<FirebaseUser | null>(null)
   const [user, setUser] = useState<any>(null)
@@ -30,38 +29,32 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
   const [errorCount, setErrorCount] = useState(0) 
   const [isPasswordPromptVisible, setIsPasswordPromptVisible] = useState(false)
   const router = useRouter()
-  const ballContainerRef = useRef<HTMLDivElement>(null)
+  const balloonContainerRef = useRef<HTMLDivElement>(null)
 
-  const launchBalloon = () => {
-      if (!ballContainerRef.current) return
 
-      const balloon = document.createElement('div')
-      const size = Math.random() * 5 + 10 // Random size between 12 and 28px
-      const left = Math.random() * 100 // Random position from 0% to 100%
+  const generateBalloon = () => {
+    if (!balloonContainerRef.current) return
 
-      // Apply random colors, and add color-shifting animation
-      balloon.className = 'absolute bottom-0 rounded-full opacity-80'
-      balloon.style.width = `${size}px`
-      balloon.style.height = `${size}px`
-      balloon.style.left = `${left}%`
-      balloon.style.animation = 'floatUp 5s ease-out infinite, colorShift 5s infinite'
+    const balloon = document.createElement('div')
+    const size = Math.random() * 10 + 5
+    const left = Math.random() * 100
+    const delay = Math.random() * 2 
 
-      // Append the balloon to the container
-      ballContainerRef.current.appendChild(balloon)
+    balloon.className = 'balloon'
+    balloon.style.width = `${size}px`
+    balloon.style.height = `${size}px`
+    balloon.style.left = `${left}%`
+    balloon.style.animationDelay = `${delay}s`
+    balloon.style.animation = `floatUp 5s ease-out infinite, colorShift 5s infinite`
+    balloonContainerRef.current.appendChild(balloon)
+    setTimeout(() => {balloon.remove()}, 5000)
+  }
 
-      // Remove the balloon after 5 seconds (same as animation duration)
-      setTimeout(() => {
-        balloon.remove()
-      }, 5000)  // The balloon will be removed after 5 seconds (time of floatUp)
-    }
+  useEffect(() => {
+    const balloonInterval = setInterval(generateBalloon, 500) 
 
-    useEffect(() => {
-      // Launch a new balloon every 500ms
-      const balloonInterval = setInterval(launchBalloon, 500)
-
-      // Cleanup the interval when the component is unmounted
-      return () => clearInterval(balloonInterval)
-    }, []) 
+    return () => clearInterval(balloonInterval) 
+  }, [])
 
   useEffect(() => {
     incrementVisitorCount()
@@ -149,7 +142,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
   }
 
   const handlePasswordSubmit = async () => {
-    const adminPassword = 'nehsbiology'
+    const adminPassword = 'abc'
 
     if (password === adminPassword) {
       if (!fbUser || !fbUser.uid) {
@@ -219,13 +212,6 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
   }
 
   useEffect(() => {
-    setCurrentTime(new Date().toLocaleString()) // Update the time on mount
-    const timer = setInterval(() => setCurrentTime(new Date().toLocaleString()), 1000)
-    return () => clearInterval(timer) // Clean up on unmount
-  }, [])
-
-
-  useEffect(() => {
     const fetchRating = async () => {
       const snap = await getDoc(doc(db, 'analytics', 'ratings'))
       const data = snap.data()
@@ -251,20 +237,17 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     >
       <Toaster richColors position='bottom-right'/>
       <div className={`absolute inset-0 z-0 ${theme === 'dark' ? 'bg-black/80' : 'bg-white/90'}`} />
-      <div ref={ballContainerRef} 
+      <div ref={balloonContainerRef} 
            className="pointer-events-none fixed inset-0 z-10 overflow-hidden" 
       />
       <header className={`sticky top-0 z-50 ${theme === 'dark' ? 'text-white bg-black' : 'text-black bg-white'}`}>
         <h1 className="text-5xl font-serif font-bold text-center">NEBC Learning Platform</h1>
         <p className="text-center text-sm mt-2">
-          {currentTime ? (
           <>
-            <span>⏰ {currentTime}</span>
             <span className="ml-3">🔥 在線人數 {onlineCount} 人</span>
             <span className="ml-3">🌐 累積訪問 {totalVisitors} 次</span>
             <span className="ml-3">⭐ 網站評價 {averageRating?.toFixed(1) ?? '😆'}</span>
           </>
-          ) : ('載入中...')}
         </p>
         <div className="text-center text-md mt-2">
           <Button onClick={handleThemeToggle}>🎨 切換主題</Button>
