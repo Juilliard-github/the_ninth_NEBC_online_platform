@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-TW en">
-      <link rel="preload" href="/fonts/ChenYuluoyan-20-Thin.woff2" as="font" type="font/woff2" crossOrigin="anonymous"></link>
+      <link rel="preload" href="/fonts/ChenYuluoyan-2.0-Thin.woff2" as="font" type="font/woff2" crossOrigin="anonymous"></link>
       <link rel="preload" href="/fonts/Iansui-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous"></link>
       <body>
         <ThemeProvider>
