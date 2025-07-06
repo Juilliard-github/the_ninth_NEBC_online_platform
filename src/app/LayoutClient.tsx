@@ -40,7 +40,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     const left = Math.random() * 100
     const delay = Math.random() * 2 
 
-    balloon.className = 'balloon'
+    balloon.className = 'absolute bottom-0 rounded-full opacity-80'
     balloon.style.width = `${size}px`
     balloon.style.height = `${size}px`
     balloon.style.left = `${left}%`
@@ -52,7 +52,6 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     const balloonInterval = setInterval(generateBalloon, 500) 
-
     return () => clearInterval(balloonInterval) 
   }, [])
 
