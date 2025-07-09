@@ -247,9 +247,9 @@ export function renderFeedback(q: Question, userAns: any){
         {[0, 1].map((val, i) => {
           const isCorrect = q.answers === val
           const isSelected = userAns === val
-          let style = 'bg-zinc-200/20'
-          if (isCorrect) style = 'bg-green-500'
-          if (isSelected && !isCorrect) style = 'bg-red-500'
+          let style = ''
+          if (isCorrect) style = 'text-green-500'
+          if (isSelected && !isCorrect) style = 'text-red-500'
           return (
             <li key={i} className={`flex justify-between items-center p-1 rounded ${style}`}>
               <span>{val ? '◯ 正確' : '✕ 錯誤'}</span>

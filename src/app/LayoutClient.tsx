@@ -110,7 +110,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     return () => unsubscribe()
   }, [])
 
-  const signIn = async () => {
+  const signInWithGoogle = async () => {
     setPassword('')
     setIsAdminPromptVisible(false)
     setIsPasswordPromptVisible(false)
@@ -118,6 +118,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     setName('')
     setRole('')
     const provider = new GoogleAuthProvider()
+    provider.setCustomParameters({prompt: 'select_account'})
     const result = await signInWithPopup(auth, provider)
     toast.success('成功登入')
     return result.user
@@ -238,7 +239,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
             </>
           ) : (
             <Button 
-              onClick={signIn}
+              onClick={signInWithGoogle}
               className='relative py-1 px-3 rounded-md overflow-hidden'
             >
               <span className='z-10'>登入</span>

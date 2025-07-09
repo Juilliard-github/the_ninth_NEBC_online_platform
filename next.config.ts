@@ -13,7 +13,7 @@ const cspHeader = `
   script-src-elem 'self' https://identitytoolkit.googleapis.com  https://apis.google.com https://apis.google.com/js/api.js https://nebc-online-platform-default-rtdb.firebaseio.com https://s-usc1a-nss-2046.firebaseio.com 'strict-dynamic' 'nonce-${nonce}';
   font-src 'self' https://the-ninth-nebc-online-platform.vercel.app; 
   style-src 'self' 'unsafe-inline';
-  img-src 'self' https://lh3.googleusercontent.com data:; 
+  img-src 'self' https://avatars.dicebear.com/api/initials https://lh3.googleusercontent.com data:; 
   connect-src 'self' https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://firestore.googleapis.com wss://s-usc1a-nss-2046.firebaseio.com https://apis.google.com;
   object-src 'none'; 
   frame-ancestors 'none';
@@ -31,7 +31,13 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
         port: '',
-        pathname: '/*'
+        pathname: '/a/*'
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.dicebear.com',
+        port: '',
+        pathname: '/api/initials/*'
       },
     ],
   },
@@ -39,7 +45,8 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true
   }, typescript: {
     ignoreBuildErrors: true,
-  }, async headers() {
+  }, poweredByHeader: false,
+  async headers() {
     return [
       {
         source: '/:path*',

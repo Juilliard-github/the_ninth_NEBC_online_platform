@@ -217,14 +217,14 @@ export default function MyResultPage() {
             }`}
           >
             <div className="flex justify-between items-center">
-              <h2 className="font-semibold">
+              <h2 className="font-semibold mb-2">
                 第 {index + 1} 題 - {questionTypeLabels[question.type]}
               </h2>
               <Button variant={`${isFavorite ? 'default' : 'undo'}`} size="sm" onClick={() => handleToggleFavorite(question.id)}>
                 {isFavorite ? '❌ 取消收藏' : '⭐ 收藏題目'}
               </Button>
             </div>
-            <div className="mb-2">{renderContent(question.question)}</div>
+            <div className="text-lg font-semibold mb-2">{renderContent(question.question)}</div>
             <div
               className={`text-sm font-semibold mb-2 ${
                 unAnswered 
@@ -247,7 +247,7 @@ export default function MyResultPage() {
             </div>
             {unAnswered  && renderOptions(question)}
             {!unAnswered  && renderFeedback(question, answer)}
-            <Accordion type="single" collapsible className="mt-2 text-gray-400">
+            <Accordion type="single" collapsible className="mt-2 text-lg text-gray-400">
               <AccordionItem value="explanation">
                 <AccordionTrigger>📖 查看詳解</AccordionTrigger>
                 <AccordionContent>

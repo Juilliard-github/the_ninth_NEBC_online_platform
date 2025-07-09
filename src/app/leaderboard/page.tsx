@@ -18,6 +18,7 @@ export default function GlobalLeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<SimplifiedUser[]>([])
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<'correctRate' | 'totalScore'>('totalScore') // 排序依據，默認根據分數排序
+  const generateId = () => Math.random().toString()
 
   useEffect(() => {
     const fetchScores = async () => {
@@ -29,7 +30,7 @@ export default function GlobalLeaderboardPage() {
       usersSnap.forEach(userDoc => {
         const data = userDoc.data()
         const id = data.uid
-        const name = data.name || `User ${id.slice(0, 6)}...`
+        const name = data.name
         const nickname = data.nickname || name
         const avatarUrl = data.avatarUrl || ''
         const totalScore = data.totalScore || 0
@@ -104,19 +105,20 @@ export default function GlobalLeaderboardPage() {
               else if (idx === 2) rankEmoji = '🥉'
 
               return (
-                <tr key={user.uid} className="border-b text-center">
-                  {idx < 3 ? (<td className="px-4 py-2 text-3xl">{rankEmoji}</td>) : (<td className="px-4 py-2">#{idx + 1}</td>)}
-                  <td className="px-4 py-2 flex justify-center items-center">
+                <tr key={generateId()} className="border-b text-center">
+                  {idx < 3 ? (<td key={generateId()} className="px-4 py-2 text-3xl">{rankEmoji}</td>) : (<td className="px-4 py-2">#{idx + 1}</td>)}
+                  <td key={generateId()} className="px-4 py-2 flex justify-center items-center">
+                    {/*`https://avatars.dicebear.com/api/initials/${user.name}.svg`*/}
                     <img
-                      src={user.avatarUrl || `https://avatars.dicebear.com/api/initials/${user.name}.svg`}
+                      src={user.avatarUrl === '' ? '/img/unknown-user.png' : user.avatarUrl}
                       alt={user.name}
                       className="w-8 h-8 rounded-full"
                     />
                   </td>
-                  <td className="px-4 py-2">{user.nickname || user.name}</td>
-                  <td className="px-4 py-2">{(user.correctRate * 100).toFixed(2)}%</td>
-                  <td className="px-4 py-2">{user.totalScore}</td>
-                  <td className="px-4 py-2">{user.totalQuestions}</td>
+                  <td key={generateId()} className="px-4 py-2">{user.nickname || user.name}</td>
+                  <td key={generateId()} className="px-4 py-2">{(user.correctRate * 100).toFixed(2)}%</td>
+                  <td key={generateId()} className="px-4 py-2">{user.totalScore}</td>
+                  <td key={generateId()} className="px-4 py-2">{user.totalQuestions}</td>
                 </tr>
               )
             })}
