@@ -173,8 +173,8 @@ export default function EditQuestionPage() {
       </select>
 
       <label>題目內容</label>
-      <textarea value={question} onChange={e => setQuestion(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/20" />
-      <div className="border p-2 bg-gray-50 rounded bg-zinc-200/20">{renderContent(question)}</div>
+      <textarea value={question} onChange={e => setQuestion(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/20" rows={4}/>
+      <div className="border p-2 bg-gray-50 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(question)}</div>
 
       {(type === 'single' || type === 'multiple') && (
         <>
@@ -263,9 +263,9 @@ export default function EditQuestionPage() {
         </div>
       )}
 
-      <label className="mt-4">詳解</label>
-      <textarea value={explanation} onChange={e => setExplanation(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/20" />
-      <div className="border p-2 bg-gray-50 rounded bg-zinc-200/20">{renderContent(explanation)}</div>
+      <label className="font-medium mb-2">詳解</label>
+      <textarea value={explanation} onChange={e => setExplanation(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/20" rows={4}/>
+      <div className="border p-2 bg-gray-50 rounded bg-zinc-200/20  whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(explanation)}</div>
 
       <Button variant="submit" onClick={handleSave} className="mt-4 bg-slate-700 text-white px-3 py-1">💾 儲存更新</Button>
     </main>

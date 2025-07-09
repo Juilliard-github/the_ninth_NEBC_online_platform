@@ -45,6 +45,10 @@ export default function ProfilePage() {
         const docSnap = await getDoc(docRef)
         if (docSnap.exists()) {
           const data = docSnap.data()
+          if(data.role === '' || data.deleted){
+            toast.info('您的帳號已遭刪除，請聯絡管理員。')
+            return
+          }
           setNickname(data.nickname || '')
           setBio(data.bio || '')
           setAvatarUrl(data.avatarUrl || '')
@@ -125,7 +129,7 @@ export default function ProfilePage() {
 
       <div className="flex items-center gap-4">
         <Avatar className="w-20 h-20">
-          <AvatarImage src={avatarUrl || 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg'} />
+          <AvatarImage src={avatarUrl || '/img/profile-icon-design-free-vector.jpg'} />
           {/*<AvatarFallback>{nickname ? nickname.slice(0, 2) : name ? name.slice(0, 2) : '👤'}</AvatarFallback>*/}
         </Avatar>
         <Input className="bg-zinc-200/20" type="file" accept="image/*" onChange={handleAvatarChange} />

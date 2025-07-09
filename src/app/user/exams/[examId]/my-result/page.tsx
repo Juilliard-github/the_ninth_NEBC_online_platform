@@ -19,7 +19,7 @@ import {
 
 export default function MyResultPage() {
   const { examId } = useParams()
-  const [userAnswers, setUserAnswers] = useState<any>(null)
+  const [userAnswers, setUserAnswers] = useState<any>()
   const [questions, setQuestions] = useState<Record<string, Question>>({})
   const [loading, setLoading] = useState(true)
   const [exam, setExam] = useState<any>(null)
@@ -234,11 +234,16 @@ export default function MyResultPage() {
                   : 'text-red-500'
               }`}
             >
-              {unAnswered 
+              {unAnswered
                 ? '⚠ 未作答'
+                : correct && question.groupType === 'highschool'
+                ? `✔ 答對！`
                 : correct
-                ? (`✔ 答對！得分：${score}`)
-                : `✘ 答錯，得分：0`}
+                ? `✔ 答對！得分：${score}`
+                : question.groupType === 'highschool'
+                ? `✘ 答錯`
+                : `✘ 答錯，得分：0`
+              }
             </div>
             {unAnswered  && renderOptions(question)}
             {!unAnswered  && renderFeedback(question, answer)}

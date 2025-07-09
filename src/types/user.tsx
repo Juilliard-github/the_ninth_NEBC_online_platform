@@ -1,5 +1,3 @@
-import { string } from "firebase/firestore"
-
 export type userType = {
   uid: string
   role: string

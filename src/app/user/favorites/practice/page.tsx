@@ -262,7 +262,7 @@ export default function FavoritePracticePage() {
         <Progress value={progress} className="h-2 bg-white/20" />
         {questions.map((q, idx) => (
           <div key={q.id} className="p-4 border rounded-md space-y-2 shadow-sm">
-            <div className="font-semibold">Q{idx + 1}：{renderContent(q.question)}</div>
+            <div className="text-lg font-semibold">Q{idx + 1}：{renderContent(q.question)}</div>
             {renderQuestion(q)}
           </div>
         ))}

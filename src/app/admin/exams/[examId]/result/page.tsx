@@ -141,7 +141,7 @@ export default function AdminExamResultPage() {
             className={`border rounded p-4 shadow-sm space-y-2 ${getBackgroundClass(rate)}`}
           >
             <h2 className="font-semibold text-lg">第 {idx + 1} 題</h2>
-            <div className="prose max-w-none text-base">{renderContent(q.question)}</div>
+            <div className="prose max-w-none text-lg text-semibold">{renderContent(q.question)}</div>
             <p>✅ 正確率：{rate.toFixed(1)}%</p>
             <p>📊 作答人數：{stats.total} 人</p>
             {renderResults(q, stats.distribution, stats.total)}

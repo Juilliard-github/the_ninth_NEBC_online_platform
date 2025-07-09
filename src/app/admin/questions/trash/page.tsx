@@ -113,7 +113,7 @@ export default function TrashPage() {
                 </div>
               </div>
 
-              <div className="text-sm font-medium">
+              <div className="text-lg font-semibold">
                 {renderContent(q.question)}
               </div>
               {renderOptions(q)}

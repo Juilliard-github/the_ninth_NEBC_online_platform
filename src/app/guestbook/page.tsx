@@ -14,7 +14,6 @@ import {
   Timestamp,
 } from 'firebase/firestore'
 import { Button } from '@/components/button'
-import Image from 'next/image'
 import { Toaster, toast } from 'sonner'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase'
@@ -25,7 +24,7 @@ interface Message {
   createdAt: any
   uid?: string
   userName?: string
-  userPhotoURL?: string
+  userPhotoURL: string
   anonymous?: boolean
   deleted: boolean
   hidden: boolean
@@ -72,7 +71,7 @@ export default function GuestbookPage() {
           uid: authUser.uid,
           name: authUser.displayName || '',
           email: authUser.email || '',
-          avatarUrl: authUser.photoURL || '',
+          avatarUrl: authUser.photoURL || 'img/profile-icon-design-free-vector.jpg',
           nickname: userData?.nickname || '',
           role: userData?.role || 'user'
         })
@@ -108,7 +107,7 @@ export default function GuestbookPage() {
       updatedAt: serverTimestamp(),
       uid: user?.uid,
       userName: isAnonymous ? '匿名' : user?.nickname || user?.name || '訪客',
-      userPhotoURL: isAnonymous ? null : user?.avatarUrl || null,
+      userPhotoURL: isAnonymous ? 'img/unknown-user.png' : user?.avatarUrl,
       anonymous: isAnonymous,
       deleted: false,
       hidden: false,
@@ -201,7 +200,7 @@ export default function GuestbookPage() {
           <li key={msg.id} className="bg-zinc-200/20 border rounded p-3 shadow break-words">
             <div className="flex items-start gap-2">
               {msg.userPhotoURL ? (
-                <Image
+                <img
                   src={msg.userPhotoURL}
                   alt="avatar"
                   width={36}

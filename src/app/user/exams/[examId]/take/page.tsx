@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { db, auth } from '@/lib/firebase'
 import {
-  doc, getDoc, setDoc, Timestamp
+  doc, getDoc, setDoc, updateDoc, Timestamp
 } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 import { Question, isUnanswered , renderContent } from '@/types/question'
@@ -43,7 +43,7 @@ export default function TakeExamPage() {
   const sensors = useSensors(useSensor(PointerSensor))
 
   useEffect(() => {
-    if (!userId) return // 避免 userId 尚未初始化
+    if (!userId) return 
 
     const checkIfSubmitted = async () => {
       const answeredRef = doc(db, 'users', userId, 'answeredExams', examId as string)
@@ -54,10 +54,8 @@ export default function TakeExamPage() {
         router.push(`/user/exams/${examId}/my-result`)
         return
       }
-
       setChecking(false)
     }
-
     checkIfSubmitted()
   }, [examId, userId])
 
@@ -113,12 +111,8 @@ export default function TakeExamPage() {
     setAnswers((prev) => ({ ...prev, [qid]: value }))
   }
 
-  const forceSubmit = useCallback(async () => {
-    if (submitted || submitting) return
-    setSubmitting(true) // 鎖定 UI
-
-    toast.info('⌛ 時間到，自動提交', { duration: 1000 }) 
-
+  const submit = useCallback(async () => {
+    if (submitted) return
     try {
       const userAnswerRef = doc(db, 'userAnswers', `${examId}_${userId}`)
       const answeredExamRef = doc(db, 'users', userId, 'answeredExams', examId as string)
@@ -136,7 +130,8 @@ export default function TakeExamPage() {
       }
 
       await Promise.all([
-        setDoc(userAnswerRef, userAnswerPayload)
+        setDoc(userAnswerRef, userAnswerPayload),
+        setDoc(answeredExamRef, { answeredAt: Timestamp.now(), toUpdate: true })
       ])
 
       setSubmitted(true)
@@ -152,40 +147,9 @@ export default function TakeExamPage() {
 
   const handleSubmit = async () => {
     if (submitted) return
-
     const unanswered = questions.filter(q => isUnanswered(q, answers[q.id], interacted))
-
     if (unanswered.length > 0) {
       let autoSubmitTimer: NodeJS.Timeout
-
-      const submit = async () => {
-        clearTimeout(autoSubmitTimer)
-        try {
-          const userAnswerRef = doc(db, 'userAnswers', `${examId}_${userId}`)
-          const answeredExamRef = doc(db, 'users', userId, 'answeredExams', examId as string)
-
-          const payload = {
-            examId,
-            userId,
-            createdAt: Timestamp.now(),
-            answers,
-          }
-
-          await Promise.all([
-            setDoc(userAnswerRef, payload),
-            setDoc(answeredExamRef, { answeredAt: Timestamp.now(), toUpdate: true })
-          ])
-
-          setSubmitted(true)
-          toast.success('已提交')
-          router.push(`/user/practice-list`)
-        } catch (err) {
-          console.error('提交作答失敗:', err)
-          toast.error('提交失敗')
-        }
-      }
-
-
       toast.error('尚有未作答的題目，5 秒後將自動提交', {
         duration: 5000,
         action: {
@@ -200,16 +164,12 @@ export default function TakeExamPage() {
           }
         }
       })
-
       autoSubmitTimer = setTimeout(() => {
         submit()
       }, 5000)
-
-      return // ❗ 中斷後續程式，避免跑到下面的 submit
+      return
     }
-
-    // ✅ 全部作答時，立即提交
-    forceSubmit()
+    submit()
   }
 
   useEffect(() => {
@@ -223,12 +183,14 @@ export default function TakeExamPage() {
 
       if (diff === 0) {
         clearInterval(interval)
-        forceSubmit() // 不提示，直接送
+        setSubmitting(true) // 鎖定 UI
+        toast.info('⌛ 時間到，自動提交', { duration: 1000 }) 
+        submit() // 不提示，直接送
       }
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [endTime, forceSubmit])
+  }, [endTime, submit])
 
   const renderQuestion = (q: Question) => {
     if (q.type === 'ordering' && (!Array.isArray(answers[q.id]) || answers[q.id].length !== q.orderOptions.length)) {
@@ -259,10 +221,9 @@ export default function TakeExamPage() {
               disabled={submitted || submitting}
               type="checkbox"
               checked={answers[q.id]?.includes(i)}
-              onChange={(e) => {
+              onChange={() => {
                 const prev: number[] = answers[q.id] || []
-                if (e.target.checked) handleAnswer(q.id, [...prev, i])
-                else handleAnswer(q.id, prev.filter((v) => v !== i))
+                handleAnswer(q.id, prev.includes(i) ? prev.filter(i => i !== i) : [...prev, i])
               }}
               className="mr-2"
             />
@@ -363,7 +324,7 @@ export default function TakeExamPage() {
         <Progress value={progress} className="h-2 bg-white/20" />
         {questions.map((q, idx) => (
           <div key={q.id} className="p-4 border rounded-md space-y-2 shadow-sm">
-            <div className="font-semibold">Q{idx + 1}：{renderContent(q.question)}</div>
+            <div className="text-lg font-semibold">Q{idx + 1}：{renderContent(q.question)}</div>
             {renderQuestion(q)}
           </div>
         ))}

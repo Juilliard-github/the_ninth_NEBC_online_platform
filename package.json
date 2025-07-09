@@ -33,6 +33,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "dompurify": "^3.2.6",
     "firebase": "^11.9.1",
     "firebase-admin": "^13.4.0",
     "framer-motion": "^12.23.0",
@@ -52,6 +53,7 @@
     "remark-breaks": "^4.0.0",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.0",
+    "trusted-types": "^2.0.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

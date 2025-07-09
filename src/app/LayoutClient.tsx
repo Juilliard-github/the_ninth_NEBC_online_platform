@@ -7,26 +7,28 @@ import RatingPopup from '@/components/RatingPopup'
 import { useOnlineUserCount } from '@/hooks/useOnlineUserCount'
 import { useVisitorStats, useVisitorCount } from '@/hooks/useVisitorStats'
 import { auth, db } from '@/lib/firebase'
-import { onAuthStateChanged, signInWithPopup, signOut, GoogleAuthProvider, User as FirebaseUser } from 'firebase/auth'
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { onAuthStateChanged, signInWithPopup, signOut, GoogleAuthProvider} from 'firebase/auth'
+import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
 import { toast, Toaster } from 'sonner'
+import { userType } from '@/types/user'
 
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const [isPopupVisible, setIsPopupVisible] = useState(false)
-  const [averageRating, setAverageRating] = useState<number | null>(null)
+  const [averageRating, setAverageRating] = useState<number>(0)
   const { totalVisitors } = useVisitorStats()
   const { incrementVisitorCount } = useVisitorCount()
   const onlineCount = useOnlineUserCount()
-  const [fbUser, setFbUser] = useState<FirebaseUser | null>(null)
-  const [user, setUser] = useState<any>(null)
-  const [role, setRole] = useState<string | null>(null)
-  const [theme, setTheme] = useState<'light' | 'dark' | null>(null)
+  const [userId, setUserId] = useState<string>('')
+  const [name, setName] = useState<string>('')
+  const [role, setRole] = useState<string>('')
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [deleted, setDeleted] = useState<boolean>(false)
   const [loading, setLoading] = useState(true)
   const [isAdminPromptVisible, setIsAdminPromptVisible] = useState(false)
   const [password, setPassword] = useState('')
   const [passwordError, setPasswordError] = useState('')
-  const [errorCount, setErrorCount] = useState(0) 
+  const [errorCount, setErrorCount] = useState<number>(0) 
   const [isPasswordPromptVisible, setIsPasswordPromptVisible] = useState(false)
   const router = useRouter()
   const balloonContainerRef = useRef<HTMLDivElement>(null)
@@ -57,48 +59,47 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     incrementVisitorCount()
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setFbUser(firebaseUser)
-      if (firebaseUser) {
-        const userRef = doc(db, 'users', firebaseUser.uid)
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        const userRef = doc(db, 'users', fbUser.uid)
         const userSnap = await getDoc(userRef)
-
-        // 檢查是否有用戶資料
         if (!userSnap.exists()) {
-          setIsAdminPromptVisible(true) // 顯示管理員選項
+          await setDoc(userRef, {
+            uid: fbUser.uid,
+            name: fbUser.displayName || '匿名',
+            nickname: '',
+            email: fbUser.email || '',
+            role: 'pending',
+            totalScore: 0,
+            correctCount: 0,
+            totalQuestions: 0,
+            correctRate: 0,
+            createdAt: serverTimestamp(),
+            lastRatedAt: serverTimestamp(),
+            deleted: false
+          })
+          setUserId(fbUser.uid)
+          setName(fbUser.displayName || '匿名')
+          setRole('pending')
+          setDeleted(false)
+          setErrorCount(0)
+          setIsAdminPromptVisible(true)
         } else {
           const data = userSnap.data()
-          const fetchedRole = data?.role || 'pending' // 預設為 pending
-          setRole(fetchedRole) // 設置角色
-          setTheme(data?.theme || 'light')
-          localStorage.setItem('theme', data?.theme || 'light')
+          setUserId(data.uid)
+          setName(data.name)
+          setRole(data.role || 'pending' ) // 設置角色
+          setTheme(data.theme || 'light')
+          setDeleted(data.deleted)
+          localStorage.setItem('theme', data.theme || 'light')
 
-          if (fetchedRole === 'pending') {
+          if (role === 'pending') {
             toast.info('您的帳號正在等待管理員審核')
           }
-          if (data.deleted === true) {
+          if (deleted === true) {
             toast.info('您的帳號已遭刪除，請聯絡管理員。')
-            setRole('pending')
+            setRole('')
           }
-
-          setUser({
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName || '',
-            nickname: data?.nickname || '',
-            role: fetchedRole,
-            email: firebaseUser.email || '',
-            avatarUrl: firebaseUser.photoURL || '',
-            totalScore: data?.totalScore || 0,
-            correctRate: data?.correctRate || 0,
-            totalQuestions: data?.totalQuestions || 0,
-            updatedAt: new Date(),
-            createdAt: data?.createdAt || new Date(),
-            lastRatedAt: data?.lastRatedAt || new Date(),
-            theme: data?.theme || 'light',
-            correctCount: data?.correctCount || 0,
-            deleted: data?.deleted || false,
-          })
-
         }
       }
       setLoading(false)
@@ -112,8 +113,8 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     setIsAdminPromptVisible(false)
     setIsPasswordPromptVisible(false)
     await signOut(auth)
-    setUser(null)
-    setRole(null)
+    setName('')
+    setRole('')
     const provider = new GoogleAuthProvider()
     const result = await signInWithPopup(auth, provider)
     toast.success('成功登入')
@@ -122,8 +123,9 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
 
   const signOutUser = async () => {
     await signOut(auth)
-    setUser(null)
-    setRole(null)
+    setUserId('')
+    setName('')
+    setRole('')
     setPassword('')
     setIsPasswordPromptVisible(false)
     toast.success('已成功登出')
@@ -136,53 +138,21 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
   }
 
   const handleNotAdminSelection = () => {
+    toast.info('您的帳號正在等待管理員審核')
     setIsAdminPromptVisible(false)
     setIsPasswordPromptVisible(false)
   }
 
   const handlePasswordSubmit = async () => {
-    const adminPassword = 'abc'
+    const adminPassword = 'nehsbiology'
 
     if (password === adminPassword) {
-      if (!fbUser || !fbUser.uid) {
+      if (!userId) {
         toast.error('用戶資料無效，請重新登錄！')
         return
       }
-
-      const userRef = doc(db, 'users', fbUser.uid)
-      const userSnap = await getDoc(userRef)
       try {
-        if (!userSnap.exists()) {
-          // 如果資料不存在，創建新的用戶資料
-          await setDoc(userRef, {
-            uid: fbUser.uid,
-            name: fbUser.displayName || '',
-            nickname: fbUser.displayName || '',
-            email: fbUser.email || '',
-            role: 'admin',
-            totalScore: 0,
-            correctCount: 0,
-            totalQuestions: 0,
-            correctRate: 0,
-            createdAt: new Date(),
-            lastRatedAt: null,
-            deleted: false
-          })
-        } else {
-          // 如果資料存在，更新 role 為 admin
-          await updateDoc(userRef, { role: 'admin' })
-        }
-
-        // 確保資料更新後再設置 user
-        const updatedUserSnap = await getDoc(userRef)
-        if (updatedUserSnap.exists()) {
-          const updatedUser = updatedUserSnap.data()
-          setUser({
-            ...updatedUser,
-            role: updatedUser?.role || 'pending',
-          })
-        }
-
+        await updateDoc(doc(db, 'users', userId), {role: 'admin'})
         setRole('admin')
         setIsPasswordPromptVisible(false)
         setErrorCount(0) // 密碼正確時，重置錯誤次數
@@ -192,18 +162,20 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
         toast.error('發生錯誤，請稍後再試。')
       }
     } else {
-      setErrorCount(prev => prev + 1)
-      toast.error('密碼錯誤，請重試！')
-      setPassword('')
-
-      if (errorCount >= 2) {
-        toast.error('您已經輸入錯誤密碼超過三次，已自動退出！')
+      if (errorCount < 2) {
+        setErrorCount(prev => prev + 1)
+        toast.error('密碼錯誤，請重試！')
+        setPassword('')
+      } else {
+        toast.error('已經輸入錯誤密碼超過三次，帳號遭刪除！如有問題請聯絡管理員。')
         setPassword('')
         setIsPasswordPromptVisible(false)
+        setDeleted(true)
+        setRole('')
+        await updateDoc(doc(db, 'users', userId), {deleted: true, role: ''})
         signOutUser()
         await signOut(auth)
-        setUser(null)
-        setRole(null)
+        setUserId('')
         router.push('/')
         return
       }
@@ -226,12 +198,16 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     const newTheme = theme === 'dark' ? 'light' : 'dark'
     setTheme(newTheme) // 設定全局 theme
   }
+  /*
+            ? "bg-[url('/img/dark-bg.png')]"
+          : "bg-[url('/img/home-bg.png')]"
+          */
 
   return (
     <div className={`relative z-0 min-h-screen flex flex-col transition-all duration-500 ${
         theme === 'dark'
-          ? "bg-[url('/img/dark-bg.png')]"
-          : "bg-[url('/img/home-bg.png')]"
+          ? "bg-black"
+          : "bg-white"
       } bg-cover bg-fixed bg-[position:center_80px]`}
     >
       <Toaster richColors position='bottom-right'/>
@@ -251,7 +227,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
         <div className="text-center text-md mt-2">
           <Button onClick={handleThemeToggle}>🎨 切換主題</Button>
           <Button onClick={() => setIsPopupVisible(true)}>😎 給予星級</Button>
-          {user ? (
+          {userId ? (
             <>
               <Button 
                 onClick={signOutUser}
@@ -261,7 +237,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
                 <span className="absolute inset-0 border-3 border-transparent rounded-md animate-borderGlow"></span>
               </Button>
               <Link href="/profile" className='mx-2 my-4 rounded-md'>⚙️ 設定</Link>
-              <span>👋 歡迎 {user.name} </span>
+              <span>👋 歡迎 {name} </span>
             </>
           ) : (
             <Button 
@@ -275,7 +251,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
         </div>
       </header>
       <div className={`relative z-0 flex-grow flex flex-col`}>
-        <nav className={`sticky top-30 z-50 p-2 shadow flex gap-4 justify-center border-double border-b ${theme === 'dark' ? 'bg-slate-800/50 text-white' : 'bg-zinc-100/50 text-black'}`}>
+        <nav className={`sticky top-30 z-50 p-2 shadow flex gap-4 justify-center border-double border-b ${theme === 'dark' ? 'bg-black/80' : 'bg-white/90'}`}>
           <Link href="/">🏠︎ 首頁</Link>
           <Link href="/news">📢 最新消息</Link>
           <Link href="/guestbook">💬 留言板</Link>

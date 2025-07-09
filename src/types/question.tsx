@@ -1,4 +1,5 @@
-import { BlockMath, InlineMath } from 'react-katex'
+import 'katex/dist/katex.min.css';
+import { BlockMath, InlineMath } from 'react-katex';
 import { Timestamp } from 'firebase/firestore'
 import Link from 'next/link'
 
@@ -76,14 +77,13 @@ export function isUnanswered(q: Question, ans: any, interacted?: Record<string, 
 
 export function renderContent(text: any) {
   const safeText = typeof text === 'string' ? text : String(text ?? '')
-  const parts = safeText.split(/(\$\$.*?\$\$|\$.*?\$)/g) // ✅ 正則也順便修了
+  const parts = safeText.split(/(\$\$.*?\$\$|\$.*?\$)/g)
   return parts.map((part, index) => {
     if (part.startsWith('$$') && part.endsWith('$$')) {
       return <BlockMath key={index}>{part.slice(2, -2)}</BlockMath>
-    }
-    if (part.startsWith('$') && part.endsWith('$')) {
+    } if (part.startsWith('$') && part.endsWith('$')) {
       return <InlineMath key={index}>{part.slice(1, -1)}</InlineMath>
-    } else if (/.(jpg|jpeg|png|gif|svg|webp)$/.test(part.trim())) {
+    } if (/.(jpg|jpeg|png|gif|svg|webp)$/.test(part.trim())) {
       return (
         <img
           key={index}
@@ -92,7 +92,7 @@ export function renderContent(text: any) {
           className="max-h-40 my-2"
         />
       )
-    } else if (part.startsWith('http') && part.includes('://')) {
+    } if (part.startsWith('http') && part.includes('://')) {
       return (
         <Link
           key={index}
@@ -104,9 +104,8 @@ export function renderContent(text: any) {
           {part.trim()}
         </Link>
       )
-    } else {
-      return <span key={index}>{part}</span>
     }
+    return <span key={index}>{part}</span>
   })
 }
 
@@ -193,11 +192,11 @@ export function renderFeedback(q: Question, userAns: any){
         {q.options?.slice(0, 4).map((opt, i) => {
           const isCorrect = q.answers === i
           const userSelected = userAns === i
-          let style = 'bg-zinc-200/20'
-          if (isCorrect) style = 'bg-green-500'
-          if (userSelected && !isCorrect) style = 'bg-red-500'
+          let style = ''
+          if (isCorrect) style = 'text-green-500'
+          if (userSelected && !isCorrect) style = 'text-red-500'
           return (
-            <li key={i} className={`p-1 rounded flex justify-between items-start ${q.answers === i ? 'text-green-500' : ''}`}>
+            <li key={i} className={`p-1 rounded flex justify-between items-start ${style}`}>
               <span>{getOptionLabel(i)} {renderContent(opt)}</span>
               <span className="text-sm text-gray-400">
                 {isCorrect && userSelected
@@ -217,16 +216,16 @@ export function renderFeedback(q: Question, userAns: any){
 
   if (q.type === 'multiple' && Array.isArray(q.options) && Array.isArray(q.answers) && Array.isArray(userAns)) {
     return (
-      <ul className="space-y-1">
+      <ul className="mt-2 space-y-1">
         {q.options?.map((opt, i) => {
           const isCorrect = Array.isArray(q.answers) && q.answers.includes(i)
           const userSelected = Array.isArray(userAns) && userAns.includes(i)
-          let style = 'bg-zinc-200/20'
-          if (isCorrect) style = 'bg-green-500'
-          if (userSelected && !isCorrect) style = 'bg-red-500'
+          let style = ''
+          if (isCorrect) style = 'text-green-500'
+          if (userSelected && !isCorrect) style = 'text-red-500'
           return (
             <li key={i} className={`flex justify-between items-center p-1 rounded ${style}`}>
-              <span>{String.fromCharCode(65 + i)} {renderContent(opt)}</span>
+              <span>({String.fromCharCode(65 + i)}) {renderContent(opt)}</span>
               <span className="text-sm text-gray-400">
                 {isCorrect && userSelected
                   ? '✔ 正確答案'

@@ -151,12 +151,12 @@ export default function QuestionListPage() {
                   </div>
                 </div>
 
-                <div className="text-sm font-medium">
+                <div className="text-lg font-semibold leading-flex  whitespace-pre-wrap break-words break-all hyphens-auto">
                   {renderContent(q.question)}
                 </div>
                 {renderOptions(q)}
 
-                <Accordion type="single" collapsible className="mt-2 text-gray-400">
+                <Accordion type="single" collapsible className="mt-2 text-gray-400  whitespace-pre-wrap break-words break-all hyphens-auto">
                   <AccordionItem value="explanation">
                     <AccordionTrigger>📖 查看詳解</AccordionTrigger>
                     <AccordionContent>

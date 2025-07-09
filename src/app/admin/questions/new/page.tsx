@@ -149,8 +149,8 @@ export default function NewQuestionPage() {
         className="w-full border rounded p-2 bg-zinc-200/20"
         rows={4}
       />
-      <p className="block mt-4 font-medium">題目內容預覽</p>
-      <div className="mt-2 border p-4 rounded bg-zinc-200/20">{renderContent(question)}</div>
+      <p className="block mb-2 font-medium">題目內容預覽</p>
+      <div className="border p-2 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(question)}</div>
 
       {(type === 'single' || type === 'multiple') && (
         <div>
@@ -250,15 +250,15 @@ export default function NewQuestionPage() {
         </div>
       )}
 
-      <label className="block mt-4 font-medium">詳解</label>
+      <label className="block mb-2 font-medium">詳解</label>
       <textarea
         value={explanation}
         onChange={e => setExplanation(e.target.value)}
         className="w-full border rounded p-2 bg-zinc-200/20"
         rows={4}
       />
-      <p className="block mt-4 font-medium">詳解預覽：</p>
-      <div className="mt-2 border p-4 rounded bg-zinc-200/20">{renderContent(explanation)}</div>
+      <p className="block mb-2 font-medium">詳解預覽：</p>
+      <div className="border p-4 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(explanation)}</div>
 
       <Button variant="create" onClick={handleSave} className="mt-4 bg-fuchsia-900 text-white px-3 py-1">建立題目 💾</Button>
     </main>

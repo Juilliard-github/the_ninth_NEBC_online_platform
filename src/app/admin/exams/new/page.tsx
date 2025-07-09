@@ -240,7 +240,7 @@ export default function NewExamPage() {
                 <div>
                   Q{index + 1} #{groupTypeLabels[q.groupType]} - {questionTypeLabels[q.type]}
                 </div>
-                <div className="text-sm font-medium">{renderContent(q.question)}</div>
+                <div className="text-lg font-semibold">{renderContent(q.question)}</div>
                 {renderOptions(q)}
                 <Accordion type="single" collapsible className="mt-3 text-gray-400">
                   <AccordionItem value="explanation">

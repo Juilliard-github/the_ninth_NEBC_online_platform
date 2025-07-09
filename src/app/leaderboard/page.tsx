@@ -2,10 +2,20 @@
 import { useEffect, useState } from 'react'
 import { db } from '@/lib/firebase'
 import { collection, getDocs } from 'firebase/firestore'
-import { User } from '@/types/user'
+
+interface SimplifiedUser {
+  uid: string,
+  name: string,
+  nickname: string,
+  avatarUrl: string,
+  totalScore: number,
+  correctRate: number, // 正確率
+  totalQuestions: number,
+  correctCount: number,
+}
 
 export default function GlobalLeaderboardPage() {
-  const [leaderboard, setLeaderboard] = useState<User[]>([])
+  const [leaderboard, setLeaderboard] = useState<SimplifiedUser[]>([])
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<'correctRate' | 'totalScore'>('totalScore') // 排序依據，默認根據分數排序
 
@@ -13,19 +23,18 @@ export default function GlobalLeaderboardPage() {
     const fetchScores = async () => {
       // Fetch users data
       const usersSnap = await getDocs(collection(db, 'users'))
-      const userMap: Record<string, User> = {}
+      const userMap: Record<string, SimplifiedUser> = {}
 
       // Loop through users to collect data
       usersSnap.forEach(userDoc => {
-        const id = userDoc.id
         const data = userDoc.data()
+        const id = data.uid
         const name = data.name || `User ${id.slice(0, 6)}...`
         const nickname = data.nickname || name
         const avatarUrl = data.avatarUrl || ''
         const totalScore = data.totalScore || 0
         const correctCount = data.correctCount || 0
         const totalQuestions = data.totalQuestions || 0
-        const attempts = data.attempts || 0
 
         // Initialize user data
         userMap[id] = {
@@ -35,7 +44,6 @@ export default function GlobalLeaderboardPage() {
           avatarUrl,
           totalScore,
           correctRate: totalQuestions > 0 ? correctCount / totalQuestions : 0, // 正確率
-          attempts,
           totalQuestions,
           correctCount,
         }
