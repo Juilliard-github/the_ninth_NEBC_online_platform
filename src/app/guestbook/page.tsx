@@ -242,7 +242,7 @@ export default function GuestbookPage() {
                 )}
 
                 <div className="text-xs text-gray-400 mt-1">
-                  {msg.createdAt?.toDate?.().toLocaleString?.()}
+                  {msg.updatedAt?.toDate?.().toLocaleString?.()}
                 </div>
 
                 {/* Admin and User Specific Actions */}

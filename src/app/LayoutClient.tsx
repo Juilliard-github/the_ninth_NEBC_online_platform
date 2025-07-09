@@ -198,16 +198,11 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     const newTheme = theme === 'dark' ? 'light' : 'dark'
     setTheme(newTheme) // 設定全局 theme
   }
-  /*
-            ? "bg-[url('/img/dark-bg.png')]"
-          : "bg-[url('/img/home-bg.png')]"
-          */
-
   return (
     <div className={`relative z-0 min-h-screen flex flex-col transition-all duration-500 ${
         theme === 'dark'
-          ? "bg-black"
-          : "bg-white"
+        ? "bg-[url('/img/dark-bg.png')]"
+        : "bg-[url('/img/home-bg.png')]"
       } bg-cover bg-fixed bg-[position:center_80px]`}
     >
       <Toaster richColors position='bottom-right'/>
