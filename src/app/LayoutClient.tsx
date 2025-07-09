@@ -75,6 +75,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
             totalQuestions: 0,
             correctRate: 0,
             createdAt: serverTimestamp(),
+            lastLogin: serverTimestamp(),
             lastRatedAt: serverTimestamp(),
             deleted: false
           })
@@ -86,9 +87,10 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
           setIsAdminPromptVisible(true)
         } else {
           const data = userSnap.data()
+          await updateDoc(doc(db, 'users', data.uid), {lastLogin: serverTimestamp()})
           setUserId(data.uid)
           setName(data.name)
-          setRole(data.role || 'pending' ) // 設置角色
+          setRole(data.role || 'pending')
           setTheme(data.theme || 'light')
           setDeleted(data.deleted)
           localStorage.setItem('theme', data.theme || 'light')

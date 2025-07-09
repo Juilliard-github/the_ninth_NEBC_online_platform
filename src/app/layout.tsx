@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import LayoutClient from './LayoutClient'
 import { ThemeProvider } from '@/hooks/ThemeContext'
 import Head from 'next/head'
-import {nonce} from '/NEBC/next.config'
+import nonce from '/NEBC/next.config'
 
 export const metadata: Metadata = {
   title: 'NEBC 題庫系統',

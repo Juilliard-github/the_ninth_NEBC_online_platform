@@ -10,6 +10,7 @@ export type userType = {
   updatedAt: string
   createdAt: string
   lastRatedAt: string
+  lastLogin: string
   theme: string
   correctCount: number
   email: string
