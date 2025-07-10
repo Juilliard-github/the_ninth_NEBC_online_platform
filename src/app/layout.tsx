@@ -10,10 +10,9 @@ export const metadata: Metadata = {
   description: '學習、練習、挑戰的平台'
 }
 
-const nonce = (await headers()).get('x-nonce')
- 
 export default function RootLayout({
   children,}: {children: React.ReactNode}) {
+  const nonce = async() => (await headers()).get('x-nonce')
   return (
     <html lang="zh-TW" nonce={`${nonce}`}>
       <Head>
