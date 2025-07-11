@@ -11,7 +11,7 @@ import { onAuthStateChanged, signInWithPopup, signOut, GoogleAuthProvider} from 
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
 import { toast, Toaster } from 'sonner'
-import { userType } from '@/types/user'
+import { sha256 } from 'js-sha256'
 
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const [isPopupVisible, setIsPopupVisible] = useState(false)
@@ -147,9 +147,8 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
   }
 
   const handlePasswordSubmit = async () => {
-    const adminPassword = 'nehsbiology'
-
-    if (password === adminPassword) {
+    const adminPassword = 'fb5f56346d9c89316d0d2a30398c00233f7a6cfbd1ac80d641cf14fc4f1df0ec'
+    if (sha256(password) === adminPassword) {
       if (!userId) {
         toast.error('用戶資料無效，請重新登錄！')
         return
@@ -161,7 +160,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
         setErrorCount(0) // 密碼正確時，重置錯誤次數
         setPassword('')
         toast.success('您已成為管理員！')
-      } catch (error) {
+      } catch (e) {
         toast.error('發生錯誤，請稍後再試。')
       }
     } else {
