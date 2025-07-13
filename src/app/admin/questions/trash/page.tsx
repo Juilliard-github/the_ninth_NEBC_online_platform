@@ -10,19 +10,19 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  Timestamp,
+  serverTimestamp,
   orderBy
 } from 'firebase/firestore'
 import { Button } from '@/components/button'
 import { Toaster, toast } from 'sonner'
 import { Question, renderContent, renderOptions } from '@/types/question'
-import { groupTypeLabels } from '@/components/labels'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/accordion'
+import { Avatar, AvatarImage } from '@/components/avatar'
 
 export default function TrashPage() {
   const [questions, setQuestions] = useState<Question[]>([])
@@ -33,7 +33,7 @@ export default function TrashPage() {
     const qSnap = await getDocs(query(
       collection(db, 'questions'),
       orderBy('createdAt', 'desc'),
-      where('deleted', '==', false)
+      where('deleted', '==', true)
     ))
     const data = qSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question))
     setQuestions(data)
@@ -49,20 +49,19 @@ export default function TrashPage() {
     try {
       await updateDoc(doc(db, 'questions', id), {
         deleted: false,
-        updatedAt: Timestamp.now()
+        updatedAt: serverTimestamp()
       })
       setQuestions(prev => prev.filter(q => q.id !== id))
       toast.success('已還原題目')
-      fetchDeletedQuestions()
     } catch (err) {
       console.error(err)
-      toast.error('❌ 還原失敗')
+      toast.error('還原失敗')
     }
   }
 
   const handlePermanentDelete = async (id: string) => {
-    toast.warning('⚠️ 確定要永久刪除嗎？', {
-      duration: 8000,
+    toast.warning('確定要永久刪除嗎？', {
+      duration: 5000,
       description: '此操作無法復原',
       action: {
         label: '永久刪除',
@@ -70,18 +69,12 @@ export default function TrashPage() {
           try {
             await deleteDoc(doc(db, 'questions', id))
             setQuestions(prev => prev.filter(q => q.id !== id))
-            toast.success('🗑️ 已永久刪除題目')
+            toast.success('已永久刪除題目')
             fetchDeletedQuestions()
           } catch (err) {
             console.error(err)
-            toast.error('❌ 永久刪除失敗')
+            toast.error('永久刪除失敗')
           }
-        }
-      },
-      cancel: {
-        label: '取消',
-        onClick: () => {
-          toast.success('已取消刪除')
         }
       }
     })
@@ -105,17 +98,20 @@ export default function TrashPage() {
             >
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-lg">
-                  #{groupTypeLabels[q.groupType]}
+                  {renderContent(q.question)}
                 </span>
                 <div className="inline-flex justify-center gap-2">
                   <Button variant="undo" onClick={() => handleRestore(q.id)}>還原</Button>
                   <Button variant="delete" onClick={() => handlePermanentDelete(q.id)}>永久刪除</Button>
                 </div>
               </div>
-
-              <div className="text-lg font-semibold">
-                {renderContent(q.question)}
-              </div>
+              {q.photoUrl !== '' && (
+                <div className="flex justify-center items-center">
+                  <Avatar className="rounded-md">
+                    <AvatarImage src={q.photoUrl} />
+                  </Avatar>
+                </div>
+              )}
               {renderOptions(q)}
 
               <Accordion type="single" collapsible className="mt-2 text-gray-400">

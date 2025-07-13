@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { collection, doc, getDocs, query, orderBy, where, getDoc, Timestamp, updateDoc } from 'firebase/firestore'
+import { collection, doc, getDocs, query, orderBy, where, getDoc, Timestamp, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import 'katex/dist/katex.min.css'
@@ -175,7 +175,7 @@ export default function ExamEditPage() {
       closeAt: closeAt ? Timestamp.fromDate(new Date(closeAt)) : null,
       answerAvailableAt: answerAvailableAt ? Timestamp.fromDate(new Date(answerAvailableAt)) : null,
       timeLimit,
-      updatedAt: Timestamp.now()
+      updatedAt: serverTimestamp()
     })
     toast.success('考試已更新')
     router.push(`/admin/exams/list?groupType=${groupType}`)
@@ -184,7 +184,7 @@ export default function ExamEditPage() {
 
   return (
     <ProtectedRoute>
-      <main className="p-6 max-w-5xl mx-auto space-y-6">
+      <main className="max-w-5xl mx-auto space-y-5">
         <Toaster richColors closeButton position="bottom-right" />
         <h1 className="text-2xl font-bold">✏️ 編輯考試</h1>
         <Input value={title} className="bg-zinc-200/20" onChange={e => setTitle(e.target.value)} placeholder="考試標題（必填）" />
@@ -202,7 +202,7 @@ export default function ExamEditPage() {
         {groupType && groupType !== 'highschool' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm mb-1">測驗開始時間</label>
+              <label className="block mb-1">測驗開始時間</label>
               <Input
                 type="datetime-local"
                 className="bg-zinc-200/20"
@@ -211,7 +211,7 @@ export default function ExamEditPage() {
               />
             </div>
             <div>
-              <label className="block text-sm mb-1">測驗結束時間</label>
+              <label className="block mb-1">測驗結束時間</label>
               <Input
                 type="datetime-local"
                 className="bg-zinc-200/20"
@@ -220,7 +220,7 @@ export default function ExamEditPage() {
               />
             </div>
             <div>
-              <label className="block text-sm mb-1">解答公布時間</label>
+              <label className="block mb-1">解答公布時間</label>
               <Input
                 type="datetime-local"
                 className="bg-zinc-200/20"
@@ -233,7 +233,7 @@ export default function ExamEditPage() {
 
         {groupType && groupType !== 'highschool' && (
           <div>
-            <label className="block text-sm mb-1">作答時長限制（分鐘）</label>
+            <label className="block mb-1">作答時長限制（分鐘）</label>
             <Input
               type="number"
               className="bg-zinc-200/20"
@@ -265,7 +265,7 @@ export default function ExamEditPage() {
                 <div>
                   Q{index + 1} #{groupTypeLabels[q.groupType]} - {questionTypeLabels[q.type]}
                 </div>
-                <div className="text-lg font-semibold">{renderContent(q.question)}</div>
+                <div className="text-xl font-semibold">{renderContent(q.question)}</div>
                 {renderOptions(q)}
                 <Accordion type="single" collapsible className="mt-3">
                   <AccordionItem value="explanation" className="text-gray-400">

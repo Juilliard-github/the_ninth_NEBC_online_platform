@@ -102,19 +102,12 @@ export default function AdminExamResultPage() {
       correctRate: Number(rate.toFixed(1))
     }
   })
-  function getColorByRate(rate: number) {
-    if (isNaN(rate)) return '#ccc'
-    const red = Math.round(239 - (rate * 1.7))
-    const green = Math.round(68 + (rate * 1.12))
-    const blue = 68
-    return `rgb(${red}, ${green}, ${blue})`
-  }
 
   if (userAnswers.length === 0) return <div className="p-6 text-lg xl:max-w-3xl xl:mx-auto xl:flex xl:items-center xl:justify-center xl:h-64">🤔無統計資料</div>
   if (loading || !exam) return <div className="p-6 text-lg xl:max-w-3xl xl:mx-auto xl:flex xl:items-center xl:justify-center xl:h-64">📊 載入中...</div>
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-5">
       <Toaster richColors closeButton position="bottom-right" />
       <h1 className="text-2xl font-bold">{exam.title} 統計結果</h1>
       <p>🏫 作答人數：{userAnswers.length}</p>
@@ -124,9 +117,9 @@ export default function AdminExamResultPage() {
             <XAxis dataKey="name" />
             <YAxis domain={[0, 100]} />
             <Tooltip />
-            <Bar dataKey="correctRate" fill="#22c55e">
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={getColorByRate(entry.correctRate)} />
+            <Bar dataKey="correctRate">
+              {chartData.map((obj, idx) => (
+                <Cell key={`cell-${idx}`} fill={getColorByRate(obj.correctRate)} />
               ))}
             </Bar>
           </BarChart>
@@ -141,7 +134,7 @@ export default function AdminExamResultPage() {
             className={`border rounded p-4 shadow-sm space-y-2 ${getBackgroundClass(rate)}`}
           >
             <h2 className="font-semibold text-lg">第 {idx + 1} 題</h2>
-            <div className="prose max-w-none text-lg text-semibold">{renderContent(q.question)}</div>
+            <div className="prose max-w-none text-xl font-semibold">{renderContent(q.question)}</div>
             <p>✅ 正確率：{rate.toFixed(1)}%</p>
             <p>📊 作答人數：{stats.total} 人</p>
             {renderResults(q, stats.distribution, stats.total)}
@@ -162,10 +155,18 @@ const getBackgroundClass = (rate) => {
   } else if (clampedRate <= 40) {
     return 'bg-red-200/20 border-red-200/50' // Still bad, but better
   } else if (clampedRate <= 60) {
-    return 'bg-yellow-200/20 border-yellow-500/50' // Yellow background for a medium score
+    return 'bg-yellow-200/20 border-yellow-200/50' // Yellow background for a medium score
   } else if (clampedRate <= 80) {
     return 'bg-green-200/20 border-green-200/50' // Almost good, but still a little improvement
   } else {
     return 'bg-green-50/20 border-green-500/50' // High rate: green background with opacity
   }
 }
+
+  function getColorByRate(rate: number) {
+    if (isNaN(rate)) return '#ccc'
+    const r = Math.round(500 - (rate * 5))
+    const g = Math.round(0 + (rate * 5))
+    const b = 0
+    return `rgba(${r}, ${g}, ${b}, 0.65)`
+  }

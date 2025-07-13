@@ -18,7 +18,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { Input } from '@/components/input'
 import { Textarea } from '@/components/textarea'
 import { Button } from '@/components/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/avatar'
+import { Avatar, AvatarImage } from '@/components/avatar'
 import { toast, Toaster } from 'sonner'
 import { useRouter } from 'next/navigation'
 
@@ -123,47 +123,47 @@ export default function ProfilePage() {
   if (loading) return <div className="p-4">載入中...</div>
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-5">
+    <div className="max-w-5xl mx-auto space-y-5">
       <Toaster richColors position='bottom-right'/>
       <h1 className="text-2xl font-bold">個人資料設定</h1>
 
       <div className="flex items-center gap-4">
-        <Avatar className="w-20 h-20">
-          <AvatarImage src={avatarUrl || '/img/profile-icon-design-free-vector.jpg'} />
+        <Avatar className="w-20 h-20 rounded-full">
+          <AvatarImage src={avatarUrl || 'img/profile-icon-design-free-vector.jpg'} />
           {/*<AvatarFallback>{nickname ? nickname.slice(0, 2) : name ? name.slice(0, 2) : '👤'}</AvatarFallback>*/}
         </Avatar>
         <Input className="bg-zinc-200/20" type="file" accept="image/*" onChange={handleAvatarChange} />
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium">電子郵件(唯讀)</label>
+        <label className="block font-medium">電子郵件(唯讀)</label>
         <Input value={email} readOnly />
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium">註冊時間(唯讀)</label>
+        <label className="block font-medium">註冊時間(唯讀)</label>
         <Input value={createdAt} readOnly />
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium">名稱</label>
-        <Input className="bg-zinc-200/20" value={name} readOnly/>
+        <label className="block font-medium">名稱</label>
+        <Input value={name} readOnly/>
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium">暱稱</label>
+        <label className="block font-medium">暱稱</label>
         <Input className="bg-zinc-200/20" value={nickname} onChange={(e) => setNickname(e.target.value)} />
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium">自我介紹</label>
+        <label className="block font-medium">自我介紹</label>
         <Textarea className="bg-zinc-200/20" value={bio} onChange={(e) => setBio(e.target.value)} rows={4} maxLength={300} />
       </div>
 
       {/* 顯示上傳進度條 */}
       {uploadProgress > 0 && (
         <div className="my-2">
-          <div className="text-sm">上傳進度：{Math.round(uploadProgress)}%</div>
+          <div>上傳進度：{Math.round(uploadProgress)}%</div>
           <div className="h-2 bg-gray-500 rounded-full">
             <div
               className="h-full bg-stone-700/80 rounded-full"

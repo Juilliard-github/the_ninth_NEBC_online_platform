@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import {
-  collection, doc, getDocs, query, orderBy, where, Timestamp, setDoc
+  collection, doc, getDocs, query, orderBy, where, Timestamp, serverTimestamp, setDoc
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -148,7 +148,7 @@ export default function NewExamPage() {
       openAt: openAt ? Timestamp.fromDate(new Date(openAt)) : null,
       closeAt: closeAt ? Timestamp.fromDate(new Date(closeAt)) : null,
       answerAvailableAt: answerAvailableAt ? Timestamp.fromDate(new Date(answerAvailableAt)) : null,
-      createdAt: Timestamp.now(),
+      createdAt: serverTimestamp(),
       ...(timeLimit ? { timeLimit: parseFloat(timeLimit) } : {}),
       deleted: false
     })
@@ -159,7 +159,7 @@ export default function NewExamPage() {
 
   return (
     <ProtectedRoute>
-      <main className="p-6 max-w-5xl mx-auto space-y-6">
+      <main className="p-6 max-w-5xl mx-auto space-y-5">
         <Toaster richColors closeButton position="bottom-right" />
         <h1 className="text-2xl font-bold">💯 新增考試</h1>
 
@@ -180,7 +180,7 @@ export default function NewExamPage() {
         {groupType !== 'highschool' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm mb-1">測驗開始時間</label>
+              <label className="block mb-1">測驗開始時間</label>
               <Input
                 className='bg-zinc-200/20'
                 type="datetime-local"
@@ -189,7 +189,7 @@ export default function NewExamPage() {
               />
             </div>
             <div>
-              <label className="block text-sm mb-1">測驗結束時間</label>
+              <label className="block mb-1">測驗結束時間</label>
               <Input
                 className='bg-zinc-200/20'
                 type="datetime-local"
@@ -198,7 +198,7 @@ export default function NewExamPage() {
               />
             </div>
             <div>
-              <label className="block text-sm mb-1">解答公布時間</label>
+              <label className="block mb-1">解答公布時間</label>
               <Input
                 className='bg-zinc-200/20'
                 type="datetime-local"
@@ -206,7 +206,7 @@ export default function NewExamPage() {
                 onChange={e => setAnswerAvailableAt(e.target.value)}
               />
             </div>
-            <label className="block text-sm mb-1">作答時長限制（分鐘）</label>
+            <label className="block mb-1">作答時長限制（分鐘）</label>
             <Input
               className='bg-zinc-200/20'
               type="number"
@@ -240,7 +240,7 @@ export default function NewExamPage() {
                 <div>
                   Q{index + 1} #{groupTypeLabels[q.groupType]} - {questionTypeLabels[q.type]}
                 </div>
-                <div className="text-lg font-semibold">{renderContent(q.question)}</div>
+                <div className="text-xl font-semibold">{renderContent(q.question)}</div>
                 {renderOptions(q)}
                 <Accordion type="single" collapsible className="mt-3 text-gray-400">
                   <AccordionItem value="explanation">

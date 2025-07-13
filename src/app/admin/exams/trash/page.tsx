@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { db } from '@/lib/firebase'
 import {
   collection, getDocs, deleteDoc, updateDoc, doc,
-  Timestamp, query, where, orderBy
+  serverTimestamp, query, where, orderBy
 } from 'firebase/firestore'
 import { Button } from '@/components/button'
 import { Toaster, toast } from 'sonner'
@@ -40,18 +40,18 @@ export default function DeletedExamsPage() {
     try {
       await updateDoc(doc(db, 'exams', id), {
         deleted: false,
-        updatedAt: Timestamp.now()
+        updatedAt: serverTimestamp()
       })
       toast.success('已還原考試')
       setDeletedExams(prev => prev.filter(e => e.id !== id))
     } catch (e) {
-      toast.error('❌ 還原失敗')
+      toast.error('還原失敗')
       console.error(e)
     }
   }
 
   const handlePermanentDelete = (id: string) => {
-    toast.warning('⚠️ 確定要永久刪除嗎？', {
+    toast.warning('確定要永久刪除嗎？', {
       duration: 10000,
       description: '此操作無法復原',
       action: {
@@ -62,7 +62,7 @@ export default function DeletedExamsPage() {
             toast.success('已永久刪除考試')
             setDeletedExams(prev => prev.filter(e => e.id !== id))
           } catch (e) {
-            toast.error('❌ 永久刪除失敗')
+            toast.error('永久刪除失敗')
             console.error(e)
           }
         }
@@ -92,7 +92,7 @@ export default function DeletedExamsPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-5">
       <h1 className="text-2xl font-bold">🗑️ 考試垃圾桶</h1>
       <Toaster richColors closeButton position="bottom-right" />
       {loading && <p>載入中...</p>}
@@ -110,9 +110,9 @@ export default function DeletedExamsPage() {
             <Button variant="delete"  onClick={() => handlePermanentDelete(exam.id)}>永久刪除</Button>
           </div>
         </div>
-          <p className="text-sm text-gray-400 mb-2">{exam.description || '無說明'}</p>
+          <p className="text-gray-400 mb-2">{exam.description || '無說明'}</p>
 
-          <div className="text-sm space-y-1 mb-3">
+          <div className="space-y-1 mb-3">
             {exam.groupType !== 'highschool' && (
               <>
                 <p>📅 作答時間：{formatDate(exam.openAt)} ～ {formatDate(exam.closeAt)}</p>

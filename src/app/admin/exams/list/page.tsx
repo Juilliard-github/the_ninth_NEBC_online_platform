@@ -8,7 +8,7 @@ import {
   getDocs,
   updateDoc,
   doc,
-  Timestamp,
+  serverTimestamp,
   addDoc,
   getDoc,
   query,
@@ -20,6 +20,7 @@ import { Input } from '@/components/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/select'
 import { useRouter } from 'next/navigation'
 import { Toaster, toast } from 'sonner'
+import { renderContent } from '@/types/question'
 
 export default function ManageExamsPage() {
   const [allExams, setAllExams] = useState<Exam[]>([])
@@ -51,7 +52,7 @@ export default function ManageExamsPage() {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Exam))
       setAllExams(data)
     } catch (e) {
-      toast.error('❌ 無法取得資料（可能需要建立 Firestore 索引）')
+      toast.error('無法取得資料（可能需要建立 Firestore 索引）')
       console.error(e)
     } finally {
       setLoading(false)
@@ -75,10 +76,10 @@ export default function ManageExamsPage() {
     try {
       await updateDoc(doc(db, 'exams', id), {
         deleted: true,
-        updatedAt: Timestamp.now()
+        updatedAt: serverTimestamp()
       })
 
-      toast.error('🗑️ 考試已刪除', {
+      toast.error('考試已刪除', {
         description: '5 秒內可還原',
         action: {
           label: '還原',
@@ -89,7 +90,7 @@ export default function ManageExamsPage() {
       setAllExams(prev => prev.filter(q => q.id !== id))
 
     } catch (e) {
-      toast.error('❌ 刪除失敗')
+      toast.error('刪除失敗')
       console.error(e)
     }
   }
@@ -98,32 +99,32 @@ export default function ManageExamsPage() {
     try {
       await updateDoc(doc(db, 'exams', id), {
         deleted: false,
-        updatedAt: Timestamp.now()
+        updatedAt: serverTimestamp()
       })
       toast.success('題目已還原')
       fetchExams()
     } catch (e) {
-      toast.error('❌ 還原失敗')
+      toast.error('還原失敗')
       console.error(e)
     }
   }
 
   const handleDuplicate = async (q: Exam) => {
     try {
-      const { id, createdAt, ...rest } = q
+      const { ...rest } = q
       const docRef = await addDoc(collection(db, 'exams'), {
         ...rest,
-        createdAt: Timestamp.now(),
+        createdAt: serverTimestamp(),
         deleted: false
       })
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
         const newE = { id: docRef.id, ...docSnap.data() } as Exam
         setAllExams(prev => [newE, ...prev])
-        toast.success('📄 已複製題目')
+        toast.success('已複製題目')
       }
     } catch (e) {
-      toast.error('❌ 複製失敗')
+      toast.error('複製失敗')
       console.error(e)
     }
   }
@@ -143,7 +144,7 @@ export default function ManageExamsPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-5">
       <Toaster richColors closeButton position="bottom-right" />
       <h1 className="text-2xl font-bold">管理已建立考試</h1>
 
@@ -186,9 +187,9 @@ export default function ManageExamsPage() {
             <Button variant="delete" onClick={() => handleUpdate(exam.id)}>刪除</Button>
           </div>
         </div>
-          <p className="text-sm text-gray-400 mb-2">{exam.description || '無說明'}</p>
+          <p className="text-gray-400 mb-2">{renderContent(exam.description) || '無說明'}</p>
 
-          <div className="text-sm space-y-1 mb-3">
+          <div className="space-y-1 mb-3">
             {exam.groupType !== 'highschool' && (
               <>
                 <p>📅 作答時間：{formatDate(exam.openAt)} ～ {formatDate(exam.closeAt)}</p>

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { db, auth } from '@/lib/firebase'
 import {
-  doc, getDoc, setDoc, Timestamp, collection, getDocs
+  doc, getDoc, setDoc, collection, getDocs
 } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 import { Question, isUnanswered , renderContent, shuffleWithAnswerSync } from '@/types/question'
@@ -97,7 +97,7 @@ export default function FavoritePracticePage() {
         await setDoc(doc(db, 'users', user.uid, 'favoritePractice', 'lastAttempt'), {
           userId: user.uid,
           answers,
-          createdAt: Timestamp.now(),
+          createdAt: serverTimestamp(),
           questionIds: questions.map(q => q.id),
         })
         toast.success('已提交')
@@ -121,7 +121,7 @@ export default function FavoritePracticePage() {
           label: '取消',
           onClick: () => {
             clearTimeout(autoSubmitTimer)
-            toast.success('❎ 已取消')
+            toast.success('已取消')
           }
         }
       })
@@ -257,12 +257,12 @@ export default function FavoritePracticePage() {
   return (
     <div className="min-h-screen w-full">
       <Toaster richColors position='bottom-right'/>
-      <div className="max-w-5xl mx-auto space-y-6 pt-6 px-4">
+      <div className="max-w-5xl mx-auto space-y-5 pt-6 px-4">
         <h1 className="text-2xl font-bold">⭐ 錯題練習</h1>
         <Progress value={progress} className="h-2 bg-white/20" />
         {questions.map((q, idx) => (
           <div key={q.id} className="p-4 border rounded-md space-y-2 shadow-sm">
-            <div className="text-lg font-semibold">Q{idx + 1}：{renderContent(q.question)}</div>
+            <div className="text-xl font-semibold">Q{idx + 1}：{renderContent(q.question)}</div>
             {renderQuestion(q)}
           </div>
         ))}

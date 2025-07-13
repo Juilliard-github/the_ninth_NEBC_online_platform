@@ -8,7 +8,7 @@ interface AvatarProps {
 export const Avatar: React.FC<AvatarProps> = ({ className, children }) => {
   return (
     <div
-      className={`inline-flex items-center justify-center overflow-hidden rounded-full ${className}`}
+      className={`inline-flex items-center justify-center overflow-hidden ${className}`}
     >
       {children}
     </div>
@@ -21,10 +21,8 @@ interface AvatarImageProps {
 }
 
 export const AvatarImage: React.FC<AvatarImageProps> = ({ src, alt = 'User Avatar' }) => {
-  return src ? (
+  return src && (
     <img src={src} alt={alt} className="object-cover w-full h-full" />
-  ) : (
-    <AvatarFallback>{alt.slice(0, 2).toUpperCase()}</AvatarFallback> // 顯示 fallback 文字
   )
 };
 

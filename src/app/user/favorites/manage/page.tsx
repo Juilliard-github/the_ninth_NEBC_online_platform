@@ -102,9 +102,9 @@ export default function FavoriteManagePage() {
               <div className="space-y-4">
                 {active.map(q => (
                   <Card key={q.id} className="p-4 space-y-2 bg-zinc-200/20">
-                    <div className="text-lg font-semibold">{renderContent(q.question)}</div>
+                    <div className="text-xl font-semibold">{renderContent(q.question)}</div>
                     {renderOptions(q)}
-                    <details className="mt-2 text-sm text-gray-400">
+                    <details className="mt-2 text-gray-400">
                       <summary className="cursor-pointer">📖 查看詳解</summary>
                       <div className="mt-1">{q.explanation ? renderContent(q.explanation) : '（無詳解）'}</div>
                     </details>
@@ -135,7 +135,7 @@ export default function FavoriteManagePage() {
                       <Button variant="delete" onClick={() => permanentlyDelete(q.id)}>永久刪除</Button>          </div>
                 </div>
 
-                <div className="text-lg font-semibold">
+                <div className="text-xl font-semibold">
                   {renderContent(q.question)}
                 </div>
                 {renderOptions(q)}

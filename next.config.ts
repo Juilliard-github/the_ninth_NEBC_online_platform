@@ -7,13 +7,19 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
         port: '',
-        pathname: '/a/*'
+        pathname: '/a/*',
       },
       {
         protocol: 'https',
         hostname: 'avatars.dicebear.com',
         port: '',
-        pathname: '/api/initials/*'
+        pathname: '/api/initials/*',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+        port: '',
+        pathname: '/*',
       },
     ],
   },

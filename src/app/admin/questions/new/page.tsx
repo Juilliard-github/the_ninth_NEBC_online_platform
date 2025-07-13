@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Timestamp, addDoc, collection } from 'firebase/firestore'
+import { serverTimestamp, addDoc, collection } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { useRouter } from 'next/navigation'
 import { Question, QuestionBase } from '@/types/question'
@@ -13,12 +13,13 @@ import SortableItem from '@/components/SortableItem_template'
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Toaster, toast } from 'sonner'
+import { Input } from '@/components/input'
+import { Avatar, AvatarImage } from '@/components/avatar'
 
 export default function NewQuestionPage() {
   const generateId = () => Math.random().toString(36).substring(2, 8)
   const router = useRouter()
   const sensors = useSensors(useSensor(PointerSensor))
-
   const [groupType, setGroupType] = useState<QuestionBase['groupType']>('highschool')
   const [type, setType] = useState<Question['type']>('single')
   const [question, setQuestion] = useState('')
@@ -34,73 +35,100 @@ export default function NewQuestionPage() {
 
   const [options, setOptions] = useState<string[]>(['', '', '', '', ''])
   const [orderOptions, setOrderOptions] = useState(['第一項', '第二項', '第三項', '第四項'].map((text, i) => ({id: generateId(),text})))
+  
+  const [photoUrl, setPhotoUrl] = useState<string>('')
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]    
+    if (file) {
+      setPhotoFile(file)
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setPhotoUrl(reader.result)
+        }
+      }
+      reader.readAsDataURL(file)
+    } else{
+      setPhotoUrl('')
+      setPhotoFile(null)
+    }
+  }
+  
 
   const handleSave = async () => {
-    if (!question.trim()) {
-      toast.error('題目內容不可為空')
-      return
-    }
+    try {
+      if (!question.trim()) {
+        toast.error('題目內容不可為空')
+        return
+      }
 
-    const payload: Partial<Question> = {
-      question,
-      type,
-      groupType,
-      explanation,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-      deleted: false,
-    }
+      const payload: Partial<Question> = {
+        question,
+        type,
+        groupType,
+        explanation,
+        photoUrl,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        deleted: false,
+      }
 
-    if (type === 'single') {
-      if (options.slice(0,4).some(opt => !opt.trim())) {
-        toast.error('選項不可為空')
-        return
+      if (type === 'single') {
+        if (options.slice(0,4).some(opt => !opt.trim())) {
+          toast.error('選項不可為空')
+          return
+        }
+        if (singleAnswer === -1) {
+          toast.error('請選擇答案')
+          return
+        }
+        payload.options = options
+        payload.answers = singleAnswer
+      } else if (type === 'multiple') {
+        if (options.some(opt => !opt.trim())) {
+          toast.error('選項不可為空')
+          return
+        }
+        if (multipleAnswer.length === 0) {
+          toast.error('請選擇答案')
+          return
+        }
+        payload.options = options
+        payload.answers = multipleAnswer
+      } else if (type === 'truefalse') {
+        if (trueFalseAnswer === null) {
+          toast.error('請選擇答案')
+          return
+        }
+        payload.options = ['⭕️', '❌']
+        payload.answers = trueFalseAnswer
+      } else if (type === 'matching') {
+        if (matchingAnswer.includes(-1) || matchingLeft.some(left => !left.trim()) || matchingRight.some(right => !right.trim())) {
+          toast.error('請完成所有配對')
+          return
+        }
+        payload.left = matchingLeft
+        payload.right = matchingRight
+        payload.answers = matchingAnswer
+      } else if (type === 'ordering') {
+        if (orderOptions.some(opt => !opt.text.trim())) {
+          toast.error('選項不可為空')
+          return
+        }
+        payload.orderOptions = orderOptions.map(opt => opt.text)
+        payload.answers = orderOptions.map((_, i) => i)
       }
-      if (singleAnswer === -1) {
-        toast.error('請選擇答案')
-        return
-      }
-      payload.options = options
-      payload.answers = singleAnswer as number
-    } else if (type === 'multiple') {
-      if (options.some(opt => !opt.trim())) {
-        toast.error('選項不可為空')
-        return
-      }
-      if (multipleAnswer.length === 0) {
-        toast.error('請選擇答案')
-        return
-      }
-      payload.options = options
-      payload.answers = multipleAnswer as number[]
-    } else if (type === 'truefalse') {
-      if (trueFalseAnswer === null) {
-        toast.error('請選擇答案')
-        return
-      }
-      payload.options = ['⭕️', '❌']
-      payload.answers = trueFalseAnswer as boolean
-    } else if (type === 'matching') {
-      if (matchingAnswer.includes(-1) || matchingLeft.some(left => !left.trim()) || matchingRight.some(right => !right.trim())) {
-        toast.error('請完成所有配對')
-        return
-      }
-      payload.left = matchingLeft
-      payload.right = matchingRight
-      payload.answers = matchingAnswer as number[]
-    } else if (type === 'ordering') {
-      if (orderOptions.some(opt => !opt.text.trim())) {
-        toast.error('選項不可為空')
-        return
-      }
-      payload.orderOptions = orderOptions.map(opt => opt.text)
-      payload.answers = orderOptions.map((_, i) => i) as number[]
-    }
 
-    await addDoc(collection(db, 'questions'), payload)
-    toast.success('題目已建立')
-    sessionStorage.setItem('questionListGroupType', groupType)
-    setTimeout(() => router.push('/admin/questions/list'), 1000)
+      await addDoc(collection(db, 'questions'), payload)
+      toast.success('題目已建立')
+      sessionStorage.setItem('questionListGroupType', groupType)
+      setTimeout(() => router.push('/admin/questions/list'), 1000)
+    } catch (err){
+      console.error(err)
+      toast.error('建立失敗，請稍後再試')
+    }
   }
 
   const toggleAnswer = (index: number) => {
@@ -142,6 +170,16 @@ export default function NewQuestionPage() {
         ))}
       </select>
 
+      <label className="block mb-2 font-medium">題目圖片</label>
+      <Input className="bg-zinc-200/20" type="file" accept="image/*" onChange={handlePhotoChange} />
+      {photoUrl !== '' && (
+        <div className="flex justify-center items-center">
+          <Avatar className="rounded-md">
+            <AvatarImage src={photoUrl} />
+          </Avatar>
+        </div>
+      )}
+
       <label className="block mb-2 font-medium">題目內容</label>
       <textarea
         value={question}
@@ -150,7 +188,7 @@ export default function NewQuestionPage() {
         rows={4}
       />
       <p className="block mb-2 font-medium">題目內容預覽</p>
-      <div className="border p-2 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(question)}</div>
+      {question && (<div className="border p-2 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(question)}</div>)}
 
       {(type === 'single' || type === 'multiple') && (
         <div>
@@ -258,7 +296,7 @@ export default function NewQuestionPage() {
         rows={4}
       />
       <p className="block mb-2 font-medium">詳解預覽：</p>
-      <div className="border p-4 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(explanation)}</div>
+      {explanation && (<div className="border p-2 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(explanation)}</div>)}
 
       <Button variant="create" onClick={handleSave} className="mt-4 bg-fuchsia-900 text-white px-3 py-1">建立題目 💾</Button>
     </main>

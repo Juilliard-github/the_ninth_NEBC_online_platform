@@ -42,7 +42,7 @@ export default function MyResultPage() {
   useEffect(() => {
     const flag = sessionStorage.getItem('fromAlreadySubmitted')
     if (flag === '1') {
-      setTimeout(() => {toast.info('📌 您已作答')}, 1000)
+      setTimeout(() => {toast.info('您已作答')}, 1000)
       sessionStorage.removeItem('fromAlreadySubmitted') // 清除以免重複顯示
     }
   }, [])
@@ -170,7 +170,7 @@ export default function MyResultPage() {
           newSet.delete(questionId)
           return newSet
         })
-        toast.success('❌ 已取消收藏')
+        toast.success('已取消收藏')
       } else {
         await setDoc(favRef, { deleted: false }, { merge: true })
         setFavoriteIds(prev => {
@@ -178,7 +178,7 @@ export default function MyResultPage() {
           newSet.add(questionId)
           return newSet
         })
-        toast.success('⭐ 已收藏題目')
+        toast.success('已收藏題目')
       }
     } catch (err) {
       console.error('收藏更新失敗', err)
@@ -193,7 +193,7 @@ export default function MyResultPage() {
   if((exam.answerAvailableAt && now <= exam.answerAvailableAt.toDate())) return <p className="p-6 text-center">解答尚未公布</p>
 
   return (
-    <main className="p-6 max-w-5xl mx-auto space-y-6">
+    <main className="max-w-5xl mx-auto space-y-5">
       <Toaster richColors position='bottom-right'/>
       <h1 className="text-2xl font-bold">📊 我的作答結果</h1>
       {exam.groupType !== 'highschool' && (
@@ -224,9 +224,9 @@ export default function MyResultPage() {
                 {isFavorite ? '❌ 取消收藏' : '⭐ 收藏題目'}
               </Button>
             </div>
-            <div className="text-lg font-semibold mb-2">{renderContent(question.question)}</div>
+            <div className="text-xl font-semibold mb-2">{renderContent(question.question)}</div>
             <div
-              className={`text-sm font-semibold mb-2 ${
+              className={`font-semibold mb-2 ${
                 unAnswered 
                   ? 'text-yellow-500'
                   : correct

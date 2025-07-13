@@ -1,11 +1,12 @@
 import 'katex/dist/katex.min.css';
 import { BlockMath, InlineMath } from 'react-katex';
-import { Timestamp } from 'firebase/firestore'
 import Link from 'next/link'
+import { Timestamp } from 'firebase/firestore';
 
 export interface QuestionBase {
   id: string
   question: string
+  photoUrl: string
   groupType: 'highschool' | 'prep' | 'review'
   explanation?: string
   createdAt: Timestamp
@@ -114,10 +115,10 @@ const getOptionLabel = (i: number) => `(${String.fromCharCode(65 + i)})`
 export function renderOptions(q: Question) {
   if (q.type === 'single' && Array.isArray(q.options)) {
     return (
-      <ul className="mt-2 space-y-1">
+      <ul className="mt-2">
         {q.options?.slice(0, 4).map((opt, i) => {
           return (
-            <li key={i} className={`p-1 rounded flex justify-between items-start ${q.answers === i ? 'text-green-500' : ''}`}>
+            <li key={i} className={`${q.answers === i ? 'text-green-500' : ''}`}>
               <span>{getOptionLabel(i)} {renderContent(opt)}</span>
             </li>
           )
@@ -128,11 +129,11 @@ export function renderOptions(q: Question) {
 
   if (q.type === 'multiple' && Array.isArray(q.options) && Array.isArray(q.answers)) {
     return (
-      <ul className="mt-2 space-y-1">
+      <ul className="mt-2">
         {q.options.map((opt, i) => {
           const isCorrect = q.answers.includes(i)
           return (
-            <li key={i} className={`p-1 rounded flex justify-between items-start ${isCorrect ? 'text-green-500' : ''}`}>
+            <li key={i} className={`${isCorrect ? 'text-green-500' : ''}`}>
               <span>{getOptionLabel(i)} {renderContent(opt)}</span>
             </li>
           )
@@ -145,10 +146,10 @@ export function renderOptions(q: Question) {
     const tfOptions = ['◯', '✕']
     const correctIndex = q.answers === 0 || q.answers === true ? 0 : 1
     return (
-      <ul className="mt-2 space-y-1">
+      <ul className="mt-2">
         {tfOptions.map((opt, i) => {
           return (
-            <li key={i} className={`p-1 rounded flex justify-between items-start ${i === correctIndex ? 'text-green-500' : ''}`}>
+            <li key={i} className={`${i === correctIndex ? 'text-green-500' : ''}`}>
               <span>{opt}</span>
             </li>
           )
@@ -159,27 +160,27 @@ export function renderOptions(q: Question) {
 
   if (q.type === 'ordering' && Array.isArray(q.orderOptions)) {
     return (
-      <div className="mt-2 space-y-3 text-sm">
-        {'✅ 正確答案：'}
+      <>
+        <div className='mb-2'>✅ 正確答案：</div>
         <ol className="list-decimal ml-5 mt-1">
           {q.orderOptions.map((idx: string, i: number) => (
             <li key={i}>{renderContent(idx)}</li>
           ))}
         </ol>
-      </div>
+      </>
     )
   }
 
   if (q.type === 'matching' && Array.isArray(q.left) && Array.isArray(q.right) && Array.isArray(q.answers)) {
     return (
-      <div className="mt-2 space-y-3 text-sm">
-        {'✅ 正確答案：'}
-        <ul className="list-disc ml-5 mt-1">
+      <>
+        <div className='mb-2'>✅ 正確答案：</div>
+        <ul>
           {q.left.map((l, i) => (
             <li key={i}>{l} ➡️ {q.right[i]}</li>
           ))}
         </ul>
-      </div>
+      </>
     )
   }
   return null
@@ -198,7 +199,7 @@ export function renderFeedback(q: Question, userAns: any){
           return (
             <li key={i} className={`p-1 rounded flex justify-between items-start ${style}`}>
               <span>{getOptionLabel(i)} {renderContent(opt)}</span>
-              <span className="text-sm text-gray-400">
+              <span className="text-gray-400">
                 {isCorrect && userSelected
                   ? '✔ 正確答案'
                   : isCorrect
@@ -226,7 +227,7 @@ export function renderFeedback(q: Question, userAns: any){
           return (
             <li key={i} className={`flex justify-between items-center p-1 rounded ${style}`}>
               <span>({String.fromCharCode(65 + i)}) {renderContent(opt)}</span>
-              <span className="text-sm text-gray-400">
+              <span className="text-gray-400">
                 {isCorrect && userSelected
                   ? '✔ 正確答案'
                   : isCorrect
@@ -253,7 +254,7 @@ export function renderFeedback(q: Question, userAns: any){
           return (
             <li key={i} className={`flex justify-between items-center p-1 rounded ${style}`}>
               <span>{val ? '◯ 正確' : '✕ 錯誤'}</span>
-              <span className="text-sm text-gray-400">
+              <span className="text-gray-400">
                 {isCorrect && isSelected
                   ? '✔ 正確答案'
                   : isCorrect
@@ -271,7 +272,7 @@ export function renderFeedback(q: Question, userAns: any){
   if (q.type === 'ordering' && Array.isArray(q.orderOptions) && Array.isArray(q.answers) && Array.isArray(userAns)) {
     const isCorrect = JSON.stringify(userAns) === JSON.stringify(q.orderOptions)
     return (
-      <div className="text-sm space-y-1">
+      <div className="space-y-1">
         {!isCorrect && (
           <>
             <div className="font-semibold">您的作答：</div>
@@ -282,7 +283,7 @@ export function renderFeedback(q: Question, userAns: any){
             </ol>
           </>
         )}
-        <div className="mt-2 space-y-3 text-sm">
+        <div className="mt-2 space-y-3">
           {'✅ 正確答案：'}
           <ol className="list-decimal ml-5 mt-1">
             {q.orderOptions.map((idx: string, i: number) => (
@@ -296,7 +297,7 @@ export function renderFeedback(q: Question, userAns: any){
   if (q.type === 'matching' && Array.isArray(q.left) && Array.isArray(q.right) && Array.isArray(q.answers) && Array.isArray(userAns)) {
     const isCorrect = JSON.stringify(userAns) === JSON.stringify(q.answers)
     return (
-      <div className="text-sm space-y-1">
+      <div className="space-y-1">
         {!isCorrect && (
           <>
             <div className="font-semibold">您的作答：</div>
@@ -328,9 +329,9 @@ export function renderResults(
         {q.options.slice(0, 4).map((opt, i) => {
           const count = distribution?.[i.toString()] || 0
           return (
-            <li key={i} className={`p-1 rounded flex justify-between items-start ${q.answers === i ? 'text-green-500' : ''}`}>
+            <li key={i} className={`flex justify-between ${q.answers === i ? 'text-green-500' : ''}`}>
               <span>{getOptionLabel(i)} {renderContent(opt)}</span>
-              <span className="text-sm text-gray-400 whitespace-nowrap ml-4">
+              <span className="text-gray-400 whitespace-nowrap ml-4">
                 {count} 人（{((count / totalUsers) * 100).toFixed(1)}%）
               </span>
             </li>
@@ -347,9 +348,9 @@ export function renderResults(
           const count = distribution?.[i.toString()] || 0
           const isCorrect = Array.isArray(q.answers) && q.answers.includes(i)
           return (
-            <li key={i} className={`p-1 rounded flex justify-between items-start ${isCorrect ? 'text-green-500' : ''}`}>
+            <li key={i} className={`flex justify-between ${isCorrect ? 'text-green-500' : ''}`}>
               <span>{getOptionLabel(i)} {renderContent(opt)}</span>
-              <span className="text-sm text-gray-400 whitespace-nowrap ml-4">
+              <span className="text-gray-400 whitespace-nowrap ml-4">
                 {count} 人（{((count / totalUsers) * 100).toFixed(1)}%）
               </span>
             </li>
@@ -367,9 +368,9 @@ export function renderResults(
         {[true, false].map((val, i) => {
           const count = distribution?.[JSON.stringify(val)] || 0
           return (
-            <li key={i} className={`p-1 rounded flex justify-between items-start ${i === correctIndex ? 'text-green-500' : ''}`}>
+            <li key={i} className={`flex justify-between ${i === correctIndex ? 'text-green-500' : ''}`}>
               <span>{tfOptions[i]}</span>
-              <span className="text-sm text-gray-400 whitespace-nowrap ml-4">
+              <span className="text-gray-400 whitespace-nowrap ml-4">
                 {count} 人（{((count / totalUsers) * 100).toFixed(1)}%）
               </span>
             </li>
@@ -398,19 +399,18 @@ export function renderResults(
       })
     }
 
-    // 排序：先多到少，正確答案永遠在最下方
     const correctItem = items.find(i => i.key === correctKey)!
     const otherItems = items.filter(i => i.key !== correctKey).sort((a, b) => b.count - a.count)
     const sortedItems = [...otherItems, correctItem]
 
     return (
-      <div className="mt-4 space-y-4 text-sm">
+      <div className="mt-4 space-y-4">
         {sortedItems.map(({ key, value, count }) => {
           const isCorrect = key === correctKey
           return (
-            <div key={key} className={`p-3 flex flex-col md:flex-row md:justify-between ${isCorrect ? 'text-green-500' : ''}`}>
+            <div key={key} className={`p-3 flex flex-col md:flex-row md:justify-between`}>
               <div>
-                <span className="font-semibold">
+                <span className={`font-semibold ${isCorrect ? 'text-green-500' : ''}`}>
                   {isCorrect ? '✅ 正確答案：' : '✍️ 使用者作答：'}
                 </span>
                 <ol className="list-decimal pl-5 mt-2 space-y-1">
@@ -419,7 +419,7 @@ export function renderResults(
                   ))}
                 </ol>
               </div>
-              <div className="mt-2 md:mt-0 md:ml-4 text-sm text-gray-400 whitespace-nowrap">
+              <div className="mt-2 md:mt-0 md:ml-4 text-gray-400 whitespace-nowrap">
                 （{count} 人，{((count / totalUsers) * 100).toFixed(1)}%）
               </div>
             </div>
@@ -448,13 +448,13 @@ export function renderResults(
     const sortedItems = [...otherItems, correctItem]
 
     return (
-      <div className="mt-4 space-y-4 text-sm">
+      <div className="mt-4 space-y-4">
         {sortedItems.map(({ key, value, count }) => {
           const isCorrect = key === correctKey
           return (
-            <div key={key} className={`p-3 flex flex-col md:flex-row md:justify-between ${isCorrect ? 'text-green-500' : ''}`}>
+            <div key={key} className={`p-3 flex flex-col md:flex-row md:justify-between`}>
               <div>
-                <span className="font-semibold">
+                <span className={`font-semibold ${isCorrect ? 'text-green-500' : ''}`}>
                   {isCorrect ? '✅ 正確答案：' : '✍️ 使用者作答：'}
                 </span>
                 <ul className="list-disc pl-5 mt-2 space-y-1">
@@ -463,7 +463,7 @@ export function renderResults(
                   ))}
                 </ul>
               </div>
-              <div className="mt-2 md:mt-0 md:ml-4 text-sm text-gray-400 whitespace-nowrap">
+              <div className="mt-2 md:mt-0 md:ml-4 text-gray-400 whitespace-nowrap">
                 （{count} 人，{((count / totalUsers) * 100).toFixed(1)}%）
               </div>
             </div>

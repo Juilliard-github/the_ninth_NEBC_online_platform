@@ -8,7 +8,7 @@ import {
   query,
   where,
   orderBy,
-  Timestamp,
+  serverTimestamp,
 } from 'firebase/firestore'
 import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/button'
@@ -82,7 +82,7 @@ export default function PracticeListPage() {
       setExams(examSnap.docs.map(d => ({ id: d.id, ...d.data() } as Exam)))
       setHighschoolExams(highschoolSnap.docs.map(d => ({ id: d.id, ...d.data() } as Exam)))
     } catch (e) {
-      toast.error('❌ 無法取得資料')
+      toast.error('無法取得資料')
       console.error(e)
     } finally {
       setLoading(false)
@@ -94,16 +94,16 @@ export default function PracticeListPage() {
     fetchData()
   }, [])
 
-  const nowTs = Timestamp.now()
+  const nowTs = serverTimestamp()
   const notYetOpen = exams.filter(e => e.openAt && nowTs < e.openAt)
   const openExams = exams.filter(e => e.openAt && e.closeAt && nowTs >= e.openAt && nowTs <= e.closeAt)
   const expiredExams = exams.filter(e => e.closeAt && nowTs > e.closeAt)
 
 
   const handleTakeExam = (exam: Exam) => {
-    const now = Timestamp.now()
-    if (exam.openAt && now < exam.openAt) return toast.warning('⚠️ 此考試尚未開放作答')
-    if (exam.closeAt && now > exam.closeAt) return toast.warning('⚠️ 此考試作答時間已結束')
+    const now = serverTimestamp()
+    if (exam.openAt && now < exam.openAt) return toast.warning('此考試尚未開放作答')
+    if (exam.closeAt && now > exam.closeAt) return toast.warning('此考試作答時間已結束')
     router.push(`/user/exams/${exam.id}/take`)
   }
 
@@ -136,8 +136,8 @@ export default function PracticeListPage() {
     return (
       <Card key={exam.id} className="bg-zinc-200/20 border border-gray-300 rounded-2xl p-4 shadow-md space-y-3">
         <h2 className="text-xl font-bold">{exam.title || '未命名考試'}</h2>
-        <div className="text-sm text-gray-400">{exam.description || '無說明'}</div>
-        <div className="text-sm space-y-1">
+        <div className="text-gray-400">{exam.description || '無說明'}</div>
+        <div className="space-y-1">
           {(exam.groupType === 'prep' || exam.groupType === 'review') && (
             <>
               <p>📅 作答時間：{formatDate(exam.openAt)} ~ {formatDate(exam.closeAt)}</p>
@@ -170,7 +170,7 @@ export default function PracticeListPage() {
   }
 
   return (
-    <div className="px-4 pb-40 min-h-screen max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-5">
       <Toaster richColors position='bottom-right'/>
       <AnimatePresence>
             {/* 三種狀態考試 */}

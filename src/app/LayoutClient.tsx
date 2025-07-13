@@ -69,6 +69,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
             name: fbUser.displayName || '匿名',
             nickname: '',
             email: fbUser.email || '',
+            avatarUrl: '/img/profile-icon-design-free-vector',
             role: 'pending',
             totalScore: 0,
             correctCount: 0,
@@ -160,7 +161,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
         setErrorCount(0) // 密碼正確時，重置錯誤次數
         setPassword('')
         toast.success('您已成為管理員！')
-      } catch (e) {
+      } catch (error) {
         toast.error('發生錯誤，請稍後再試。')
       }
     } else {
@@ -196,10 +197,6 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     fetchRating()
   }, [])
 
-  const handleThemeToggle = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark'
-    setTheme(newTheme) // 設定全局 theme
-  }
   return (
     <div className={`relative z-0 min-h-screen flex flex-col transition-all duration-500 ${
         theme === 'dark'
@@ -222,7 +219,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
           </>
         </p>
         <div className="text-center text-md mt-2">
-          <Button onClick={handleThemeToggle}>🎨 切換主題</Button>
+          <Button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>🎨 切換主題</Button>
           <Button onClick={() => setIsPopupVisible(true)}>😎 給予星級</Button>
           {userId ? (
             <>
@@ -248,7 +245,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
         </div>
       </header>
       <div className={`relative z-0 flex-grow flex flex-col`}>
-        <nav className={`sticky top-30 z-50 p-2 shadow flex gap-4 justify-center border-double border-b ${theme === 'dark' ? 'bg-black/80' : 'bg-white/90'}`}>
+        <nav className={`sticky top-30 z-50 p-2 shadow flex gap-4 justify-center border-double border-b ${theme === 'dark' ? 'bg-black/80 text-white' : 'bg-white/90 text-dark'}`}>
           <Link href="/">🏠︎ 首頁</Link>
           <Link href="/news">📢 最新消息</Link>
           <Link href="/guestbook">💬 留言板</Link>

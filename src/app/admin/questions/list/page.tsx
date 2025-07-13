@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { collection, doc, getDocs, query, orderBy, where, updateDoc, addDoc, getDoc, Timestamp } from 'firebase/firestore'
+import { collection, doc, getDocs, query, orderBy, where, updateDoc, addDoc, getDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import 'katex/dist/katex.min.css'
@@ -53,47 +53,40 @@ export default function QuestionListPage() {
   }, [fetchQuestions])
 
   const handleDelete = async (id: string) => {
-    await updateDoc(doc(db, 'questions', id), {
-      deleted: true,
-      updatedAt: Timestamp.now()
-    })
-    setQuestions(prev => prev.filter(q => q.id !== id))
-    toast.error('🗑️ 題目已刪除', {
-      description: '5 秒內可還原',
+    toast.warning('確定要刪除嗎？', {
+      duration: 5000,
       action: {
-        label: '還原',
-        onClick: () => handleRestore(id)
+        label: '確定',
+        onClick: async () => {
+          try {
+            await updateDoc(doc(db, 'questions', id), {
+              deleted: true,
+              updatedAt: serverTimestamp()
+            })
+            setQuestions(prev => prev.filter(q => q.id !== id))
+            toast.success('已移置垃圾桶')
+          } catch (err) {
+            console.error(err)
+            toast.error('刪除失敗')
+          }
+        }
       }
     })
   }
 
-  const handleRestore = async (id: string) => {
-    try {
-      await updateDoc(doc(db, 'questions', id), {
-        deleted: false,
-        updatedAt: Timestamp.now()
-      })
-      toast.success('題目已還原')
-      fetchQuestions()
-    } catch (e) {
-      toast.error('❌ 還原失敗')
-      console.error(e)
-    }
-  }
-
   const handleDuplicate = async (q: Question) => {
-    const { id, createdAt, updatedAt, ...rest } = q
+    const { ...rest } = q
     const docRef = await addDoc(collection(db, 'questions'), {
       ...rest,
-      createdAt: Timestamp.now(),
+      createdAt: serverTimestamp(),
       deleted: false,
-      updatedAt: Timestamp.now()
+      updatedAt: serverTimestamp()
     })
     const docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
       const newQ = { id: docRef.id, ...docSnap.data() } as Question
       setQuestions(prev => [newQ, ...prev])
-      toast.success('📄 已複製題目')
+      toast.success('已複製題目')
     }
   }
 
@@ -137,30 +130,31 @@ export default function QuestionListPage() {
             {filteredQuestions.length === 0 && (
               <div className="text-center">暫無題目</div>
             )}
-            {filteredQuestions.map((q, index) => (
+            {filteredQuestions.map((q) => (
               <div
                 key={q.id}
                 className="border border-gray-300 bg-zinc-200/20 rounded-2xl p-5 shadow-md space-y-4 transition"
               >
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-lg">Q{index + 1}</span>
-                  <div className="inline-flex justify-center gap-2">
+                <div className="flex justify-between">
+                  <span className="text-xl font-semibold leading-flex whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(q.question)}</span>
+                  <div className="inline-flex gap-2">
                     <Button variant="copy" onClick={() => handleDuplicate(q)}>📄 複製</Button>
                     <Button variant="edit" onClick={() => router.push(`/admin/questions/${q.id}/edit`)}>✏️ 編輯</Button>
                     <Button variant="delete" onClick={() => handleDelete(q.id)}>🗑️ 刪除</Button>
                   </div>
                 </div>
-
-                <div className="text-lg font-semibold leading-flex  whitespace-pre-wrap break-words break-all hyphens-auto">
-                  {renderContent(q.question)}
-                </div>
+                {q.photoUrl && (
+                  <img
+                    src={q.photoUrl}
+                    alt="題目照片"
+                  />
+                )}
                 {renderOptions(q)}
-
-                <Accordion type="single" collapsible className="mt-2 text-gray-400  whitespace-pre-wrap break-words break-all hyphens-auto">
-                  <AccordionItem value="explanation">
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="explanation" className="text-gray-400 whitespace-pre-wrap break-words break-all hyphens-auto">
                     <AccordionTrigger>📖 查看詳解</AccordionTrigger>
                     <AccordionContent>
-                      {q.explanation ? renderContent(q.explanation) : '（無詳解）'}
+                        {q.explanation ? renderContent(q.explanation) : '（無詳解）'}
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

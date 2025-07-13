@@ -11,7 +11,6 @@ import {
   updateDoc,
   getDoc,
   doc,
-  Timestamp,
 } from 'firebase/firestore'
 import { Button } from '@/components/button'
 import { Toaster, toast } from 'sonner'
@@ -197,8 +196,9 @@ export default function GuestbookPage() {
 
       <ul className="space-y-4">
         {messages.map((msg) => (
-          <li key={msg.id} className="bg-zinc-200/20 border rounded p-3 shadow break-words">
-            <div className="flex items-start gap-2">
+          <li key={msg.id}>
+            {!msg.hidden && (
+            <div className="flex items-start gap-2 bg-zinc-200/20 border rounded p-3 shadow break-words">
               {msg.userPhotoURL ? (
                 <img
                   src={msg.userPhotoURL}
@@ -213,13 +213,11 @@ export default function GuestbookPage() {
                 </div>
               )}
               <div className="flex-1">
-                <div className="text-sm font-semibold">{msg.userName}</div>
+                <div className="font-semibold">{msg.userName}</div>
 
                 {/* Conditional rendering for deleted or hidden messages */}
                 {msg.deleted ? (
                   <div className="flex gap-2 mt-2 text-gray-400/90">(使用者已刪除此留言)</div>
-                ) : msg.hidden ? (
-                  <div className="flex gap-2 mt-2 text-gray-400/90">(管理員已隱藏此留言)</div>
                 ) : (
                   <>
                     {editingId === msg.id ? (
@@ -281,6 +279,7 @@ export default function GuestbookPage() {
                 )}
               </div>
             </div>
+            )}
           </li>
         ))}
       </ul>

@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { db, auth } from '@/lib/firebase'
 import {
-  doc, getDoc, setDoc, updateDoc, Timestamp
+  doc, getDoc, setDoc, serverTimestamp
 } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 import { Question, isUnanswered , renderContent } from '@/types/question'
@@ -57,7 +57,7 @@ export default function TakeExamPage() {
       setChecking(false)
     }
     checkIfSubmitted()
-  }, [examId, userId])
+  })
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
@@ -120,9 +120,9 @@ export default function TakeExamPage() {
       const userAnswerPayload = {
         examId,
         userId,
-        createdAt: Timestamp.now(),
+        createdAt: serverTimestamp(),
         answers,
-        updatedAt: Timestamp.now(),
+        updatedAt: serverTimestamp(),
         totalScore: 0,
         correctCount: 0,
         totalQuestions: 0,
@@ -131,7 +131,7 @@ export default function TakeExamPage() {
 
       await Promise.all([
         setDoc(userAnswerRef, userAnswerPayload),
-        setDoc(answeredExamRef, { answeredAt: Timestamp.now(), toUpdate: true })
+        setDoc(answeredExamRef, { answeredAt: serverTimestamp(), toUpdate: true })
       ])
 
       setSubmitted(true)
@@ -160,7 +160,7 @@ export default function TakeExamPage() {
           label: '取消',
           onClick: () => {
             clearTimeout(autoSubmitTimer)
-            toast.success('❎ 已取消')
+            toast.success('已取消')
           }
         }
       })
@@ -184,7 +184,7 @@ export default function TakeExamPage() {
       if (diff === 0) {
         clearInterval(interval)
         setSubmitting(true) // 鎖定 UI
-        toast.info('⌛ 時間到，自動提交', { duration: 1000 }) 
+        toast.info('時間到，自動提交', { duration: 1000 }) 
         submit() // 不提示，直接送
       }
     }, 1000)
@@ -318,13 +318,13 @@ export default function TakeExamPage() {
   return (
     <div className="min-h-screen w-full">
       <Toaster richColors position='bottom-right'/>
-      <div className="max-w-5xl mx-auto space-y-6 pt-6 px-4">
+      <div className="max-w-5xl mx-auto space-y-5 pt-6 px-4">
         <h1 className="text-2xl font-bold">📝 開始作答</h1>
         {timeLeft && <div className="font-semibold">⏰ 剩餘時間：{timeLeft}</div>}
         <Progress value={progress} className="h-2 bg-white/20" />
         {questions.map((q, idx) => (
           <div key={q.id} className="p-4 border rounded-md space-y-2 shadow-sm">
-            <div className="text-lg font-semibold">Q{idx + 1}：{renderContent(q.question)}</div>
+            <div className="text-xl font-semibold">Q{idx + 1}：{renderContent(q.question)}</div>
             {renderQuestion(q)}
           </div>
         ))}

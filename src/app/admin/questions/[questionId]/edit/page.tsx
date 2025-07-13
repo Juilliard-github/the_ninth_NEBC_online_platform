@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore'
+import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Question, renderContent } from '@/types/question'
 import { groupTypeLabels, questionTypeLabels } from '@/components/labels'
@@ -12,6 +12,8 @@ import SortableItem from '@/components/SortableItem_template'
 import { Button } from '@/components/button'
 import { Toaster, toast } from 'sonner'
 import MatchingCanvas from '@/components/MatchingCanvas'
+import { Input } from '@/components/input'
+import { Avatar, AvatarImage } from '@/components/avatar'
 
 export default function EditQuestionPage() {
   const generateId = () => Math.random().toString(36).substring(2, 8)
@@ -32,7 +34,8 @@ export default function EditQuestionPage() {
   const [matchingRight, setMatchingRight] = useState<string[]>([])
   const [matchingAnswer, setMatchingAnswer] = useState<number[]>([])
   const [explanation, setExplanation] = useState('')
-
+  const [photoUrl, setPhotoUrl] = useState<string>('')
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
   const sensors = useSensors(useSensor(PointerSensor))
 
   useEffect(() => {
@@ -46,6 +49,7 @@ export default function EditQuestionPage() {
         setType(data.type)
         setQuestion(data.question)
         setExplanation(data.explanation ?? '')
+        setPhotoUrl(data.photoUrl)
 
         if (data.type === 'single') {
           setOptions(data.options || [])
@@ -76,6 +80,23 @@ export default function EditQuestionPage() {
       })
   }, [questionId])
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setPhotoFile(file)
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setPhotoUrl(reader.result)
+        }
+      }
+      reader.readAsDataURL(file)
+    } else{
+      setPhotoUrl('')
+      setPhotoFile(null)
+    }
+  }
+
   const handleSave = async () => {
     if (!question.trim()) {
       toast.error('題目內容不可為空')
@@ -85,9 +106,10 @@ export default function EditQuestionPage() {
     let payload: Partial<Question> = {
       groupType,
       type,
+      photoUrl,
       question,
       explanation,
-      updatedAt: Timestamp.now(),
+      updatedAt: serverTimestamp(),
     }
 
     if (type === 'single') {
@@ -138,12 +160,12 @@ export default function EditQuestionPage() {
 
     try {
       await updateDoc(doc(db, 'questions', questionId!), payload)
-
       toast.success('更新成功')
+      sessionStorage.setItem('questionListGroupType', groupType)
       router.push('/admin/questions/list') // 更新成功後跳轉
     } catch (err) {
       console.error(err)
-      toast.error('❌ 更新失敗')
+      toast.error('更新失敗')
     }
   }
 
@@ -158,23 +180,33 @@ export default function EditQuestionPage() {
   if (error) return <p className="p-6 text-red-600">{error}</p>
 
   return (
-    <main className="max-w-5xl mx-auto p-6 space-y-6">
+    <main className="max-w-5xl mx-auto p-6 space-y-5">
       <Toaster richColors position='bottom-right'/>
       <h1 className="text-2xl font-bold">✏️ 編輯題目</h1>
 
       <label>題組包類型</label>
-      <select value={groupType} onChange={e => setGroupType(e.target.value as any)} className="mb-4 w-full border p-2 rounded bg-zinc-200/20">
+      <select value={groupType} onChange={e => setGroupType(e.target.value as Question['groupType'])} className="mb-4 w-full border p-2 rounded bg-zinc-200/20">
         {Object.entries(groupTypeLabels).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
       </select>
 
       <label>題目類型</label>
-      <select value={type} onChange={e => setType(e.target.value as any)} className="mb-4 w-full border p-2 rounded bg-zinc-200/20">
+      <select value={type} onChange={e => setType(e.target.value as Question['type'])} className="mb-4 w-full border p-2 rounded bg-zinc-200/20">
         {Object.entries(questionTypeLabels).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
       </select>
 
+      <label className="block mb-2 font-medium">題目圖片</label>
+      <Input className="bg-zinc-200/20" type="file" accept="image/*" onChange={handlePhotoChange} />
+      {photoUrl !== '' && (
+        <div className="flex justify-center items-center">
+          <Avatar className="rounded-md">
+            <AvatarImage src={photoUrl} />
+          </Avatar>
+        </div>
+      )}
+
       <label>題目內容</label>
       <textarea value={question} onChange={e => setQuestion(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/20" rows={4}/>
-      <div className="border p-2 bg-gray-50 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(question)}</div>
+      {question && (<div className="text-lg border p-2 bg-gray-50 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(question)}</div>)}
 
       {(type === 'single' || type === 'multiple') && (
         <>
@@ -263,9 +295,9 @@ export default function EditQuestionPage() {
         </div>
       )}
 
-      <label className="font-medium mb-2">詳解</label>
+      <label className="font-medium mt-4 mb-2">詳解</label>
       <textarea value={explanation} onChange={e => setExplanation(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/20" rows={4}/>
-      <div className="border p-2 bg-gray-50 rounded bg-zinc-200/20  whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(explanation)}</div>
+      {explanation && (<div className="border p-2 bg-gray-50 rounded bg-zinc-200/20  whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(explanation)}</div>)}
 
       <Button variant="submit" onClick={handleSave} className="mt-4 bg-slate-700 text-white px-3 py-1">💾 儲存更新</Button>
     </main>

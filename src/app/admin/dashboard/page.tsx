@@ -141,7 +141,7 @@ export default function AdminPage() {
       <h1 className="text-2xl font-bold mb-4">🔐 管理員後台</h1>
 
       <div className="overflow-x-auto">
-        <table className="w-full border border-gray-300 rounded-xl overflow-hidden text-sm">
+        <table className="w-full border border-gray-300 rounded-xl overflow-hidden">
           <thead>
             <tr className="bg-zinc-200/20 text-left">
               <th className="border px-4 py-2 min-w-[8rem]">名稱</th>

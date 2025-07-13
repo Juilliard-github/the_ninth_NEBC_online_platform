@@ -133,7 +133,7 @@ export default function FavoriteResultPage() {
 
 
   return (
-    <main className="p-6 max-w-5xl mx-auto space-y-6">
+    <main className="max-w-5xl mx-auto space-y-5">
       <Toaster richColors position='bottom-right'/>
       <h1 className="text-2xl font-bold">📊 錯題練習結果</h1>
       <h2 className="text-xl font-semibold">正確題數：{correctCount} / {questions.length}</h2>
@@ -165,7 +165,7 @@ export default function FavoriteResultPage() {
             </div>
             <div className="mb-2">{renderContent(question.question)}</div>
             <div
-              className={`text-sm font-semibold mb-2 ${
+              className={`font-semibold mb-2 ${
                 unAnswered 
                   ? 'text-yellow-500'
                   : correct
@@ -176,8 +176,8 @@ export default function FavoriteResultPage() {
               {unAnswered 
                 ? '⚠ 未作答'
                 : correct
-                ? (`✔ 答對！得分：${score}`)
-                : `✘ 答錯，得分：0`}
+                ? (`✔ 答對！`)
+                : `✘ 答錯`}
             </div>
             {unAnswered  && renderOptions(question)}
             {!unAnswered  && renderFeedback(question, answer)}

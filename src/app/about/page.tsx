@@ -229,7 +229,7 @@ const AboutPage = () => {
         {messages.map((msg) => {
           if (!user) return null
           return (
-            <li key={msg.id} className="rounded-xl bg-zinc-200/10 border p-4 shadow-sm">
+            <li key={msg.id}>
               {editingId === msg.id && role === 'admin' ? (
                 <div>
                   <textarea
@@ -251,28 +251,33 @@ const AboutPage = () => {
                 </div>
               ) : (
                 <>
-                  <h1 className={`text-4xl font-bold font-[ChenYuluoyan] text-${Colors[random]}-500 drop-shadow-md`}
-                      style={{ textShadow: '1px 1px 1px rgba(0, 0, 0, 0.15)' }}
-                  >
-                   {msg.title}
-                  </h1>
-                  {msg.tags && msg.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-1 text-xs">
-                      {msg.tags.map(tag => (
-                        <span key={tag} className="font-[ChenYuluoyan] text-2xl bg-amber-500/70 px-2 py-0.5 rounded-full">#{tag}</span>
-                      ))}
+                  {!msg.hidden || role === 'admin' && (
+                    <div className="rounded-xl bg-zinc-200/10 border p-4 shadow-sm">
+                      <h1 className={`text-4xl font-bold font-[ChenYuluoyan] text-${Colors[random]}-500 drop-shadow-md`}
+                          style={{ textShadow: '1px 1px 1px rgba(0, 0, 0, 0.15)' }}
+                      >
+                      {msg.title}
+                      </h1>
+                      {msg.tags && msg.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-1 text-xs">
+                          {msg.tags.map(tag => (
+                            <span key={tag} className="font-[ChenYuluoyan] text-2xl bg-amber-500/70 px-2 py-0.5 rounded-full">#{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                      <div className={`font-[ChenYuluoyan] text-2xl prose dark:prose-invert max-w-none mt-3 decoration-dotted underline-offset-4 underline decoration-${Colors[random]}-500`}>
+                        <ReactMarkdown remarkPlugins={[remarkBreaks]}>
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
+                      <div className="text-xs text-right text-gray-400 mt-2">
+                        by {msg.userName} ・{msg.createdAt?.toDate()?.toLocaleString?.()}
+                      </div>
                     </div>
                   )}
-                  <div className={`font-[ChenYuluoyan] text-2xl prose dark:prose-invert max-w-none mt-3 decoration-dotted underline-offset-4 underline decoration-${Colors[random]}-500`}>
-                    <ReactMarkdown remarkPlugins={[remarkBreaks]}>
-                      {msg.content}
-                    </ReactMarkdown>
-                  </div>
-                  <div className="text-xs text-right text-gray-400 mt-2">
-                    by {msg.userName} ・{msg.createdAt?.toDate()?.toLocaleString?.()}
-                  </div>
-                </>
+                </>                  
               )}
+
 
               {role === 'admin' && editingId !== msg.id && (
                 <div className="flex gap-2 mt-2">
