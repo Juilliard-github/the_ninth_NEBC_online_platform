@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { db, auth } from '@/lib/firebase'
 import {
-  doc, getDoc, setDoc, serverTimestamp
+  doc, getDoc, setDoc, serverTimestamp, Timestamp
 } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 import { Question, isUnanswered , renderContent } from '@/types/question'
@@ -38,6 +38,7 @@ export default function TakeExamPage() {
   const [initialized, setInitialized] = useState<Record<string, boolean>>({})
   const [interacted, setInteracted] = useState<Record<string, boolean>>({})
   const [submitting, setSubmitting] = useState(false) // 用來鎖定 UI
+  const startedAt = Timestamp.now().toMillis()
 
 
   const sensors = useSensors(useSensor(PointerSensor))
@@ -126,6 +127,7 @@ export default function TakeExamPage() {
         totalScore: 0,
         correctCount: 0,
         totalQuestions: 0,
+        time: Timestamp.now().toMillis() - startedAt,
         toUpdate: true
       }
 
@@ -147,7 +149,7 @@ export default function TakeExamPage() {
 
   const handleSubmit = async () => {
     if (submitted) return
-    const unanswered = questions.filter(q => isUnanswered(q, answers[q.id], interacted))
+    const unanswered = questions.filter(q => isUnanswered(q, answers[q.id], interacted) && q.type !== 'ordering')
     if (unanswered.length > 0) {
       let autoSubmitTimer: NodeJS.Timeout
       toast.error('尚有未作答的題目，5 秒後將自動提交', {
@@ -198,6 +200,9 @@ export default function TakeExamPage() {
     }
     if (q.type === 'matching' && !answers[q.id]) {
       handleAnswer(q.id, Array(q.left.length).fill(-1))
+    }
+    if (q.type === 'multiple' && !answers[q.id]) {
+      setAnswers(['-1'])
     }
     switch (q.type) {
       case 'single':
@@ -324,7 +329,7 @@ export default function TakeExamPage() {
         <Progress value={progress} className="h-2 bg-white/20" />
         {questions.map((q, idx) => (
           <div key={q.id} className="p-4 border rounded-md space-y-2 shadow-sm">
-            <div className="text-xl font-semibold">Q{idx + 1}：{renderContent(q.question)}</div>
+            <div className="text-xl font-semibold">{renderContent(q.question)}</div>
             {renderQuestion(q)}
           </div>
         ))}

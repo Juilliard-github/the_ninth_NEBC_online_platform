@@ -128,8 +128,8 @@ export default function FavoriteResultPage() {
     toast.success('已更新收藏狀態')
   }
 
-  if (loading) return <p className="p-6">載入中...</p>
-  if (questions.length === 0) return <p className="p-6">尚無錯題練習資料。</p>
+  if (loading) return <p className="p-6 text-center text-gray-400">載入中...</p>
+  if (questions.length === 0) return <p className="p-6 text-center text-gray-400">尚無錯題練習資料。</p>
 
 
   return (
@@ -143,7 +143,7 @@ export default function FavoriteResultPage() {
         const answer = answers[question.id]
         const correct = isAnswerCorrect(question, answer)
         const isFavorite = favoriteIds.includes(question.id)
-        const unAnswered = isUnanswered(question, answer)
+        const unAnswered = isUnanswered(question, answer) && question.type !== 'ordering'
         return (
           <div
             key={question.id}

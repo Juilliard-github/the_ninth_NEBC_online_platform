@@ -90,7 +90,7 @@ export default function FavoriteManagePage() {
       </div>
 
       {loading ? (
-        <p className="text-gray-400">載入中...</p>
+        <p className="text-gray-400 text-center p-6">載入中...</p>
       ) : (
         <>
           {/* 收藏中區塊 */}

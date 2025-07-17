@@ -10,10 +10,8 @@ import { db } from '@/lib/firebase'
 import { Exam } from '@/types/exam'
 import { Question, renderContent, renderResults } from '@/types/question'
 import { Toaster, toast } from 'sonner'
-import { useRouter } from 'next/navigation'
 
 export default function AdminExamResultPage() {
-  const router = useRouter()
   const { examId } = useParams()
   const [exam, setExam] = useState<Exam | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
@@ -63,9 +61,14 @@ export default function AdminExamResultPage() {
 
     related.forEach((ua) => {
       const ans = ua!.answer
-      const key = typeof ans === 'string' ? ans : JSON.stringify(ans)
-      counts[key] = (counts[key] || 0) + 1
-
+      if (question.type !== 'multiple') {
+        const key = typeof ans === 'string' ? ans : JSON.stringify(ans)
+        counts[key] = (counts[key] || 0) + 1
+      } else {
+        ans.map((key: any) => {
+          counts[key] = (counts[key] || 0) + 1
+        }
+      )}
       const isCorrect = (() => {
         switch (question.type) {
           case 'truefalse':
@@ -103,13 +106,13 @@ export default function AdminExamResultPage() {
     }
   })
 
-  if (userAnswers.length === 0) return <div className="p-6 text-lg xl:max-w-3xl xl:mx-auto xl:flex xl:items-center xl:justify-center xl:h-64">🤔無統計資料</div>
-  if (loading || !exam) return <div className="p-6 text-lg xl:max-w-3xl xl:mx-auto xl:flex xl:items-center xl:justify-center xl:h-64">📊 載入中...</div>
+  if (userAnswers.length === 0) return <div className="p-6 text-gray-400 text-center">🤔無統計資料</div>
+  if (loading || !exam) return <div className="p-6 text-gray-400 text-center">載入中...</div>
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">
       <Toaster richColors closeButton position="bottom-right" />
-      <h1 className="text-2xl font-bold">{exam.title} 統計結果</h1>
+      <h1 className="text-2xl font-bold">{exam.title} 統計數據</h1>
       <p>🏫 作答人數：{userAnswers.length}</p>
       <div className="w-full h-64">
         <ResponsiveContainer width="100%" height="100%">
@@ -168,5 +171,5 @@ const getBackgroundClass = (rate) => {
     const r = Math.round(500 - (rate * 5))
     const g = Math.round(0 + (rate * 5))
     const b = 0
-    return `rgba(${r}, ${g}, ${b}, 0.65)`
+    return `rgba(${r}, ${g}, ${b}, 0.35)`
   }

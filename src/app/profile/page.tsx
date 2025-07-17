@@ -120,7 +120,7 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading) return <div className="p-4">載入中...</div>
+  if (loading) return <div className="p-4 text-gray-400 text-center">載入中...</div>
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">

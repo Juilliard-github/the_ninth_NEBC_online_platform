@@ -75,7 +75,6 @@ export default function DeletedExamsPage() {
       }
     })
   }
-
   
   function formatDate(ts?: any) {
     if (!ts || typeof ts.toDate !== 'function') return '未設定'
@@ -95,7 +94,7 @@ export default function DeletedExamsPage() {
     <div className="max-w-5xl mx-auto space-y-5">
       <h1 className="text-2xl font-bold">🗑️ 考試垃圾桶</h1>
       <Toaster richColors closeButton position="bottom-right" />
-      {loading && <p>載入中...</p>}
+      {loading && <p className="p-6 text-gray-400 text-center">載入中...</p>}
       {!loading && deletedExams.length === 0 && (
         <p>沒有已刪除的考試</p>
       )}

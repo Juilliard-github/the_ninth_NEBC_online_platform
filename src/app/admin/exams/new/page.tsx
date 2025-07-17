@@ -219,7 +219,7 @@ export default function NewExamPage() {
         )}
 
         {loading ? (
-          <p>載入中...</p>
+          <p className='p-6 text-gray-400 text-center'>載入中...</p>
         ) : (
           <>
             {filteredQuestions.map((q, index) => (

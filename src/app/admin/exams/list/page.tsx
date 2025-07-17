@@ -168,7 +168,7 @@ export default function ManageExamsPage() {
         />
       </div>
 
-      {loading && <p>載入中...</p>}
+      {loading && <p className="p-6 text-gray-400 text-center">載入中...</p>}
       {!loading && filteredExams.length === 0 && <p>查無符合的考試</p>}
 
       {filteredExams.map((exam) => (
@@ -181,7 +181,8 @@ export default function ManageExamsPage() {
             {exam.title || '未命名考試'}
           </span>
           <div className="inline-flex justify-center gap-2">
-            <Button variant="view" onClick={() => router.push(`/admin/exams/${exam.id}/result`)}>查看</Button>
+            <Button variant="submit" onClick={() => router.push(`/admin/exams/${exam.id}/leaderboard`)}>排行榜</Button>
+            <Button variant="default" onClick={() => router.push(`/admin/exams/${exam.id}/result`)}>統計數據</Button>
             <Button variant="edit" onClick={() => router.push(`/admin/exams/${exam.id}/edit`)}>編輯</Button>
             <Button variant="copy" onClick={() => handleDuplicate(exam)}>複製</Button>
             <Button variant="delete" onClick={() => handleUpdate(exam.id)}>刪除</Button>

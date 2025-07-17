@@ -1,9 +1,17 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { collection, getDocs } from 'firebase/firestore'
-
-interface SimplifiedUser {
+import { Exam } from '@/types/exam'
+import { Toaster, toast } from 'sonner'
+interface SimplifiedUserProfile {
+  uid: string,
+  name: string,
+  nickname: string,
+  avatarUrl: string,
+}
+interface SimplifiedUserData {
   uid: string,
   name: string,
   nickname: string,
@@ -12,63 +20,94 @@ interface SimplifiedUser {
   correctRate: number, // 正確率
   totalQuestions: number,
   correctCount: number,
+  time: number,
 }
 
 export default function GlobalLeaderboardPage() {
-  const [leaderboard, setLeaderboard] = useState<SimplifiedUser[]>([])
+  const [leaderboard, setLeaderboard] = useState<SimplifiedUserData[]>([])
   const [loading, setLoading] = useState(true)
-  const [sortBy, setSortBy] = useState<'correctRate' | 'totalScore'>('totalScore') // 排序依據，默認根據分數排序
-  const generateId = () => Math.random().toString()
+  const [sortBy, setSortBy] = useState<'correctRate' | 'totalScore'>('totalScore')
+  const generateId = () => Math.random().toString()   
+  const { examId } = useParams()
+  const [exam, setExam] = useState<Exam | null>(null)
 
   useEffect(() => {
     const fetchScores = async () => {
-      // Fetch users data
-      const usersSnap = await getDocs(collection(db, 'users'))
-      const userMap: Record<string, SimplifiedUser> = {}
+      setLoading(true)
 
+      const usersSnap = await getDocs(collection(db, 'users'))
+      const userMap: Record<string, SimplifiedUserProfile> = {}
       // Loop through users to collect data
       usersSnap.forEach(userDoc => {
         const data = userDoc.data()
-        if (data.deleted) return
         const id = data.uid
         const name = data.name
         const nickname = data.nickname || name
         const avatarUrl = data.avatarUrl || ''
-        const totalScore = data.totalScore || 0
-        const correctCount = data.correctCount || 0
-        const totalQuestions = data.totalQuestions || 0
-        // Initialize user data
         userMap[id] = {
           uid: id,
           name,
           nickname,
           avatarUrl,
-          totalScore,
-          correctRate: totalQuestions > 0 ? correctCount / totalQuestions : 0, // 正確率
-          totalQuestions,
-          correctCount,
+        }
+      })
+
+      const examSnap = await getDoc(doc(db, 'exams', examId as string))
+      if (!examSnap.exists()) return
+
+      const examData = examSnap.data() as Exam
+      setExam({ ...examData, id: examSnap.id })
+
+      const answerSnap = await getDocs(
+        query(collection(db, 'userAnswers'), where('examId', '==', examId))
+      )
+
+      const userDataMap: Record<string, SimplifiedUserData> = {}
+  
+      answerSnap.forEach(async userAnsDoc => {
+        const data = userAnsDoc.data()
+        const userId = data.userId
+        const totalScore = data.totalScore || 0
+        const correctCount = data.correctCount || 0
+        const totalQuestions = data.totalQuestions || 0
+        const time = data.time || -1
+        const userData = userMap[userId]
+        // Initialize user data
+        if (userData) {
+          // Initialize user data
+          userDataMap[userId] = {
+            uid: userId,
+            name: userData.name,
+            nickname: userData.nickname,
+            avatarUrl: userData.avatarUrl,
+            totalScore,
+            correctRate: totalQuestions > 0 ? correctCount / totalQuestions : 0, // 正確率
+            totalQuestions,
+            correctCount,
+            time,
+          }
         }
       })
 
       // Sort users based on the selected sorting option (`correctRate` or `totalScore`)
-      const sorted = Object.values(userMap).sort((a, b) => {
+      const sorted = Object.values(userDataMap).sort((a, b) => {
         return sortBy === 'correctRate'
-          ? b.correctRate - a.correctRate // Sort by correct rate
-          : b.totalScore - a.totalScore // Sort by total score
+          ? (b.correctRate - a.correctRate !== 0 ? b.correctRate - a.correctRate : a.time - b.time) // Sort by correct rate
+          : (b.totalScore - a.totalScore !== 0 ? b.totalScore - a.totalScore : a.time - b.time) // Sort by total score
       })
 
       setLeaderboard(sorted)
       setLoading(false)
     }
-
     fetchScores()
-  }, [sortBy]) // Re-run when sorting method changes
-
-  if (loading) return <div className="p-4 text-gray-400 text-center">載入中...</div>
+  }, [examId, sortBy])
+  
+  if (loading || !exam) return <div className="p-6 text-gray-400 text-center">載入中...</div>
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">🏆 成績排行榜</h1>
+      <Toaster richColors closeButton position="bottom-right" />
+      <h1 className="text-2xl font-bold  mb-4">{exam.title} 排行榜</h1>
       
       <div className="mb-4">
         <label htmlFor="sortBy" className="mr-2">排序依據：</label>
@@ -94,7 +133,7 @@ export default function GlobalLeaderboardPage() {
               <th className="px-4 py-2">暱稱</th>
               <th className="px-4 py-2">正確率</th>
               <th className="px-4 py-2">分數</th>
-              <th className="px-4 py-2">作答次數</th>
+              <th className="px-4 py-2">作答時間</th>
             </tr>
           </thead>
           <tbody>
@@ -115,10 +154,10 @@ export default function GlobalLeaderboardPage() {
                       className="w-8 h-8 rounded-full"
                     />
                   </td>
-                  <td key={generateId()} className="px-4 py-2">{user.nickname || user.name}</td>
+                  <td key={generateId()} className="px-4 py-2">{user.nickname || user.name || '⚡'}</td>
                   <td key={generateId()} className="px-4 py-2">{(user.correctRate * 100).toFixed(2)}%</td>
                   <td key={generateId()} className="px-4 py-2">{user.totalScore}</td>
-                  <td key={generateId()} className="px-4 py-2">{user.totalQuestions}</td>
+                  <td key={generateId()} className="px-4 py-2">{user.time === -1 ? '♾️' : `${(user.time/60000).toFixed(0)}分${((user.time/1000)%60).toFixed(0)}秒` }</td>
                 </tr>
               )
             })}

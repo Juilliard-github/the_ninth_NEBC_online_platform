@@ -347,6 +347,7 @@ export function renderResults(
         {q.options.map((opt, i) => {
           const count = distribution?.[i.toString()] || 0
           const isCorrect = Array.isArray(q.answers) && q.answers.includes(i)
+          console.log("distribution: ", distribution)
           return (
             <li key={i} className={`flex justify-between ${isCorrect ? 'text-green-500' : ''}`}>
               <span>{getOptionLabel(i)} {renderContent(opt)}</span>
@@ -355,8 +356,8 @@ export function renderResults(
               </span>
             </li>
           )
-        })}
-      </ul>
+      })}
+    </ul>
     )
   }
 
@@ -388,9 +389,7 @@ export function renderResults(
         value: JSON.parse(k).map(Number),
         count: v
       }))
-      .filter(({ value }) => !isUnanswered(q, value))
 
-    // 加入正確答案（即使沒人選）
     if (!items.some(i => i.key === correctKey)) {
       items.push({
         key: correctKey,

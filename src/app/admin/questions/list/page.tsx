@@ -124,7 +124,7 @@ export default function QuestionListPage() {
         </div>
 
         {loading ? (
-          <p>載入中...</p>
+          <p className="p-6 text-gray-400 text-center">載入中...</p>
         ) : (
           <>
             {filteredQuestions.length === 0 && (

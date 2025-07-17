@@ -176,8 +176,8 @@ export default function EditQuestionPage() {
     } else if (type === 'truefalse') setTrueFalseAnswer(idx === 0)
   }
 
-  if (loading) return <p className="p-6 text-center">⏳ 載入中...</p>
-  if (error) return <p className="p-6 text-red-600">{error}</p>
+  if (loading) return <p className="p-6 text-gray-400 text-center">載入中...</p>
+  if (error) return <p className="p-6 text-red-600 text-center">{error}</p>
 
   return (
     <main className="max-w-5xl mx-auto p-6 space-y-5">

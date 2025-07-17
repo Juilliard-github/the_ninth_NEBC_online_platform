@@ -6,7 +6,6 @@ import { db } from '@/lib/firebase'
 import { doc, getDoc, getDocs, collection, setDoc, serverTimestamp} from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { Question, renderContent, renderFeedback, isUnanswered, isAnswerCorrect } from '@/types/question'
-import { questionTypeLabels } from '@/components/labels'
 import { Button } from '@/components/button'
 import { toast, Toaster } from 'sonner'
 import { renderOptions } from '../../../../../types/question'
@@ -32,20 +31,6 @@ export default function MyResultPage() {
   const [totalQuestions, setTotalQuestions] = useState(0)
   const auth = getAuth()
   const user = auth.currentUser
-
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
-
-
-  useEffect(() => {
-    const flag = sessionStorage.getItem('fromAlreadySubmitted')
-    if (flag === '1') {
-      setTimeout(() => {toast.info('您已作答')}, 1000)
-      sessionStorage.removeItem('fromAlreadySubmitted') // 清除以免重複顯示
-    }
-  }, [])
 
   useEffect(() => {
     const loadData = async () => {
@@ -140,10 +125,8 @@ export default function MyResultPage() {
 
         await setDoc(uaRef, payload, {merge: true})
         await setDoc(userRef, userPayload, {merge: true})
-        toast.success('已更新成績')
       } catch (err) {
         console.error('更新成績失敗:', err)
-        toast.error('更新成績失敗')
       } finally {
         setLoading(false)
       }
@@ -204,7 +187,7 @@ export default function MyResultPage() {
       {results.map(({ questionId, correct, score, answer, question }, index) => {
         if (!question) return null
         const isFavorite = favoriteIds.has(questionId)
-        const unAnswered = isUnanswered(question, answer)
+        const unAnswered = isUnanswered(question, answer) && question.type !== 'ordering'
         return (
           <div
             key={questionId}
@@ -217,14 +200,11 @@ export default function MyResultPage() {
             }`}
           >
             <div className="flex justify-between items-center">
-              <h2 className="font-semibold mb-2">
-                第 {index + 1} 題 - {questionTypeLabels[question.type]}
-              </h2>
+              <div className="text-xl font-semibold mb-2">{renderContent(question.question)}</div>
               <Button variant={`${isFavorite ? 'default' : 'undo'}`} size="sm" onClick={() => handleToggleFavorite(question.id)}>
                 {isFavorite ? '❌ 取消收藏' : '⭐ 收藏題目'}
               </Button>
             </div>
-            <div className="text-xl font-semibold mb-2">{renderContent(question.question)}</div>
             <div
               className={`font-semibold mb-2 ${
                 unAnswered 

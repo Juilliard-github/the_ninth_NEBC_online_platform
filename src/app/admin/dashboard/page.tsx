@@ -133,7 +133,7 @@ export default function AdminPage() {
     }
   }
 
-  if (loading) return <p className="p-6">載入中...</p>
+  if (loading) return <p className="p-6 text-gray-400 text-center">載入中...</p>
 
   return (
     <main className="p-6 max-w-6xl mx-auto">

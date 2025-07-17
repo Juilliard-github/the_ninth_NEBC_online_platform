@@ -244,7 +244,7 @@ export default function ExamEditPage() {
         )}
 
         {loading ? (
-          <p>載入中...</p>
+          <p className="p-6 text-gray-400 text-center">載入中...</p>
         ) : (
          <>
             {filteredQuestions.map((q, index) => (
@@ -261,9 +261,6 @@ export default function ExamEditPage() {
                       placeholder="配分"
                     />
                   )}
-                </div>
-                <div>
-                  Q{index + 1} #{groupTypeLabels[q.groupType]} - {questionTypeLabels[q.type]}
                 </div>
                 <div className="text-xl font-semibold">{renderContent(q.question)}</div>
                 {renderOptions(q)}
