@@ -1,5 +1,8 @@
 'use client'
-
+import CloseIcon from '@mui/icons-material/Close';
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { db } from '@/lib/firebase'
@@ -7,7 +10,7 @@ import { doc, getDoc, getDocs, collection, setDoc, serverTimestamp} from 'fireba
 import { getAuth } from 'firebase/auth'
 import { Question, renderContent, renderFeedback, isUnanswered, isAnswerCorrect } from '@/types/question'
 import { Button } from '@/components/button'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import { renderOptions } from '../../../../../types/question'
 import {
   Accordion,
@@ -170,15 +173,13 @@ export default function MyResultPage() {
   }
 
 
-  if (!exam) return <p className="p-6 text-center">找不到此考試</p> 
-  if (!userAnswers || !userAnswers.answers) return <p className="p-6 text-center">查無作答資料</p>
-  if (loading) return <p className="p-6 text-center text-gray-400">載入中...</p>
-  if((exam.answerAvailableAt && now <= exam.answerAvailableAt.toDate())) return <p className="p-6 text-center">解答尚未公布</p>
+  if (!exam) return <p className="p-5 text-center">找不到此考試</p> 
+  if (!userAnswers || !userAnswers.answers) return <p className="p-5 text-center">查無作答資料</p>
+  if((exam.answerAvailableAt && now <= exam.answerAvailableAt.toDate())) return <p className="p-5 text-center">解答尚未公布</p>
 
   return (
-    <main className="max-w-5xl mx-auto space-y-5">
-      <Toaster richColors position='bottom-right'/>
-      <h1 className="text-2xl font-bold">📊 我的作答結果</h1>
+    <main>
+      <h1><QueryStatsIcon/> 我的作答結果</h1>
       {exam.groupType !== 'highschool' && (
         <h2 className="text-xl font-semibold">總得分：{totalScore}</h2>
       )}
@@ -201,8 +202,8 @@ export default function MyResultPage() {
           >
             <div className="flex justify-between items-center">
               <div className="text-xl font-semibold mb-2">{renderContent(question.question)}</div>
-              <Button variant={`${isFavorite ? 'default' : 'undo'}`} size="sm" onClick={() => handleToggleFavorite(question.id)}>
-                {isFavorite ? '❌ 取消收藏' : '⭐ 收藏題目'}
+              <Button variant={`${isFavorite ? 'default' : 'undo'}`} onClick={() => handleToggleFavorite(question.id)}>
+                {isFavorite ? <><CloseIcon/> 取消收藏</> : <><BookmarksIcon/> 收藏題目</>}
               </Button>
             </div>
             <div
@@ -229,7 +230,7 @@ export default function MyResultPage() {
             {!unAnswered  && renderFeedback(question, answer)}
             <Accordion type="single" collapsible className="mt-2 text-lg text-gray-400">
               <AccordionItem value="explanation">
-                <AccordionTrigger>📖 查看詳解</AccordionTrigger>
+                <AccordionTrigger><MenuBookIcon/> 查看詳解</AccordionTrigger>
                 <AccordionContent>
                   {question.explanation ? renderContent(question.explanation) : '（無詳解）'}
                 </AccordionContent>

@@ -9,7 +9,7 @@ import {
 import { auth, db } from '@/lib/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { Button } from '@/components/button'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import remarkBreaks from 'remark-breaks'
 import ReactMarkdown from 'react-markdown'
 import confetti from 'canvas-confetti'
@@ -174,23 +174,20 @@ const AboutPage = () => {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <Toaster richColors position="bottom-right" />
-
-      {/* 封面區塊 */}
-      <div className="mb-10 p-6 rounded-xl bg-gradient-to-br from-indigo-100 to-pink-100">
-        <h1 className="text-2xl font-extrabold text-purple-800">網站創作手記
-          <Button onClick={fireConfetti} className="text-lg">
+    <main>
+      <div className="p-5 rounded-xl bg-gradient-to-br from-indigo-100 to-pink-100">
+        <h1 className="text-purple-800">網站創作手記
+          <Button onClick={fireConfetti} className="noEffect">
             🎉 
           </Button>
         </h1>
-        <span className="mt-2 text-zinc-600">
+        <span className="text-zinc-600">
           <div>
           這裡記錄了我製作本網站的點滴心得與札記。專案緣起、設計思路、過程挑戰與小小成就。
           </div>
           <div>
-          若有任何問題或建議，歡迎寄信給我{' '}
-          <Link href="mailto:juilliard.wynn@gmail.com" className="text-blue-500 underline text-md">✉ 聯絡我</Link>
+          若有任何問題或建議，歡迎寄信給我。{' '}
+          <Link href="mailto:juilliard.wynn@gmail.com" className="text-blue-500 underline text-md noEffect">✉ 聯絡我</Link>
           </div>
         </span>
       </div>
@@ -281,13 +278,13 @@ const AboutPage = () => {
 
               {role === 'admin' && editingId !== msg.id && (
                 <div className="flex gap-2 mt-2">
-                  <Button size="sm" variant="edit" onClick={() => {
+                  <Button variant="edit" onClick={() => {
                     setEditingId(msg.id)
                     setEditingTitle(msg.title)
                     setEditingContent(msg.content)
                   }}>編輯</Button>
-                  <Button size="sm" variant="delete" onClick={() => handleDelete(msg.id)}>刪除</Button>
-                  <Button size="sm" variant={msg.hidden ? 'undo' : 'default'} onClick={() => msg.hidden ? handleRecover(msg.id) : handleHide(msg.id)}>
+                  <Button variant="delete" onClick={() => handleDelete(msg.id)}>刪除</Button>
+                  <Button variant={msg.hidden ? 'undo' : 'default'} onClick={() => msg.hidden ? handleRecover(msg.id) : handleHide(msg.id)}>
                     {msg.hidden ? '復原' : '隱藏'}
                   </Button>
                 </div>
@@ -296,7 +293,7 @@ const AboutPage = () => {
           )
         })}
       </ul>
-    </div>
+    </main>
   )
 }
 

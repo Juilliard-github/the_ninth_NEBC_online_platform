@@ -1,5 +1,8 @@
 'use client'
-
+import DrawIcon from '@mui/icons-material/Draw';
+import DoDisturbOnIcon from '@mui/icons-material/DoDisturbOn';
+import LaunchIcon from '@mui/icons-material/Launch';
+import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import { useEffect, useState, useCallback } from 'react'
 import { db } from '@/lib/firebase'
 import {
@@ -12,7 +15,7 @@ import {
 } from 'firebase/firestore'
 import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/button'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import { Exam } from '@/types/exam'
 import { AnimatePresence } from 'framer-motion'
 import { Card } from '@/components/card'
@@ -134,8 +137,8 @@ export default function PracticeListPage() {
 
   const renderExamCard = (exam: Exam, action?: React.ReactNode) => {
     return (
-      <Card key={exam.id} className="bg-zinc-200/20 border border-gray-300 rounded-2xl p-4 shadow-md space-y-3">
-        <h2 className="text-xl font-bold">{exam.title || '未命名考試'}</h2>
+      <Card key={exam.id} className="container2">
+        <h2 className="text-xl font-semibold">{exam.title || '未命名考試'}</h2>
         <div className="text-gray-400">{exam.description || '無說明'}</div>
         <div className="space-y-1">
           {(exam.groupType === 'prep' || exam.groupType === 'review') && (
@@ -145,7 +148,7 @@ export default function PracticeListPage() {
               <p>⏱️ 作答時限：{exam.timeLimit ? `${exam.timeLimit} 分鐘` : '不限時間'}</p>
             </>
           )}
-          <p>📝 題目數量：{exam.questionIds?.length ?? 0}</p>
+          <p>題目數量：{exam.questionIds?.length ?? 0}</p>
         </div>
         {(exam.openAt && now <= exam.openAt.toDate()) ? (
           <span className="text-gray-400 text-center">尚未開放考試</span>
@@ -170,27 +173,26 @@ export default function PracticeListPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5">
-      <Toaster richColors position='bottom-right'/>
+    <main>
       <AnimatePresence>
             {/* 三種狀態考試 */}
             {[{
-              id: 'not-yet-open', title: '⏳ 尚未開放考試', data: notYetOpen,
+              id: 'not-yet-open', title: <><HourglassBottomIcon/> 尚未開放考試</>, data: notYetOpen,
               empty: '沒有尚未開放的考試',
             }, {
-              id: 'open-now', title: '🟢 開放中考試', data: openExams,
+              id: 'open-now', title: <><LaunchIcon/> 開放中考試</>, data: openExams,
               empty: '目前無可作答考試',
               renderAction: (e: Exam) => <Button variant="view" onClick={() => handleTakeExam(e)}>開始作答</Button>,
             }, {
-              id: 'expired', title: '⛔ 已結束考試', data: expiredExams,
+              id: 'expired', title: <><DoDisturbOnIcon/> 已結束考試</>, data: expiredExams,
               empty: '沒有已結束的考試',
             }].map(({ id, title, data, empty, renderAction }) => (
-              <section id={id} key={id} className="scroll-mt-40 space-y-4 border-t pt-6">
+              <section id={id} key={id} className="scroll-mt-18 space-y-4 border-t pt-6">
                 <h2 className="text-2xl font-semibold">{title}</h2>
                 {data.length === 0 ? (
                   <p className="text-gray-400">{empty}</p>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {data.map(e => renderExamCard(e, renderAction?.(e)))}
                   </div>
                 )}
@@ -201,9 +203,9 @@ export default function PracticeListPage() {
             {/* 高中練習 */}
             <section id="highschool" className="scroll-mt-40 space-y-4 border-t pt-6">
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <h2 className="text-2xl font-semibold">🏫 高中章節自由練習</h2>
+                <h2 className="text-2xl font-semibold"><DrawIcon/> 高中章節自由練習</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {highschoolExams
                   .map(e => renderExamCard(e,
                     <Button variant="view" onClick={() => router.push(`/user/exams/${e.id}/take`)}>開始練習</Button>
@@ -211,7 +213,7 @@ export default function PracticeListPage() {
               </div>
             </section>
       </AnimatePresence>
-    </div>
+    </main>
   )
 }
 

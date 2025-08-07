@@ -1,5 +1,6 @@
 'use client'
-
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useEffect, useState, useCallback } from 'react'
 import { db } from '@/lib/firebase'
 import {
@@ -14,7 +15,7 @@ import {
   orderBy
 } from 'firebase/firestore'
 import { Button } from '@/components/button'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import { Question, renderContent, renderOptions } from '@/types/question'
 import {
   Accordion,
@@ -22,7 +23,6 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/accordion'
-import { Avatar, AvatarImage } from '@/components/avatar'
 
 export default function TrashPage() {
   const [questions, setQuestions] = useState<Question[]>([])
@@ -81,13 +81,10 @@ export default function TrashPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5">
-      <Toaster richColors closeButton position="bottom-right" />
-      <h1 className="text-2xl font-bold">🗑️ 題目垃圾桶</h1>
+    <main>
+      <h1><DeleteIcon/> 題目垃圾桶</h1>
 
-      {loading ? (
-        <p className="text-gray-400 text-center">載入中...</p>
-      ) : questions.length === 0 ? (
+      {questions.length === 0 ? (
         <div className="text-center">暫無題目</div>
       ) : (
         <div>
@@ -97,7 +94,7 @@ export default function TrashPage() {
               className="border border-gray-300 bg-zinc-200/20 rounded-2xl p-5 mb-5 shadow-md space-y-4 transition"
             >
               <div className="flex justify-between items-center">
-                <span className="font-semibold text-lg">
+                <span className="font-semibold text-xl">
                   {renderContent(q.question)}
                 </span>
                 <div className="inline-flex justify-center gap-2">
@@ -106,17 +103,17 @@ export default function TrashPage() {
                 </div>
               </div>
               {q.photoUrl !== '' && (
-                <div className="flex justify-center items-center">
-                  <Avatar className="rounded-md">
-                    <AvatarImage src={q.photoUrl} />
-                  </Avatar>
-                </div>
+                <img
+                  alt='題目圖片'
+                  className="rounded-md flex justify-center items-center"
+                  src={q.photoUrl} 
+                />
               )}
               {renderOptions(q)}
 
               <Accordion type="single" collapsible className="mt-2 text-gray-400">
                 <AccordionItem value="explanation">
-                  <AccordionTrigger>📖 查看詳解</AccordionTrigger>
+                  <AccordionTrigger><MenuBookIcon/> 查看詳解</AccordionTrigger>
                   <AccordionContent>
                     {q.explanation ? renderContent(q.explanation) : '（無詳解）'}
                   </AccordionContent>
@@ -126,7 +123,7 @@ export default function TrashPage() {
           ))}
         </div>
       )}
-    </div>
+    </main>
   )
 }
 

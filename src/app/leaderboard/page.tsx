@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { db } from '@/lib/firebase'
 import { collection, getDocs } from 'firebase/firestore'
-
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 interface SimplifiedUser {
   uid: string,
   name: string,
@@ -64,19 +64,16 @@ export default function GlobalLeaderboardPage() {
     fetchScores()
   }, [sortBy]) // Re-run when sorting method changes
 
-  if (loading) return <div className="p-4 text-gray-400 text-center">載入中...</div>
-
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">🏆 成績排行榜</h1>
-      
+    <main>
+      <h1><EmojiEventsIcon/> 成績排行榜</h1>
       <div className="mb-4">
-        <label htmlFor="sortBy" className="mr-2">排序依據：</label>
+        <label htmlFor="sortBy">排序依據：</label>
         <select
           id="sortBy"
           value={sortBy}
           onChange={e => setSortBy(e.target.value as 'correctRate' | 'totalScore')}
-          className="p-2 border rounded bg-zinc-200/20"
+          className="p-2 bg-zinc-200/20 border border-gray-300 rounded-xl"
         >
           <option value="totalScore">分數</option>
           <option value="correctRate">正確率</option>
@@ -86,45 +83,46 @@ export default function GlobalLeaderboardPage() {
       {leaderboard.length === 0 ? (
         <div>尚無作答資料。</div>
       ) : (
-        <table className="min-w-full table-auto shadow">
-          <thead>
-            <tr className="border-b bg-zinc-200/20">
-              <th className="px-4 py-2">排名</th>
-              <th className="px-4 py-2">頭像</th>
-              <th className="px-4 py-2">暱稱</th>
-              <th className="px-4 py-2">正確率</th>
-              <th className="px-4 py-2">分數</th>
-              <th className="px-4 py-2">作答次數</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaderboard.map((user, idx) => {
-              let rankEmoji = '❓'
-              if (idx === 0) rankEmoji = '🥇'
-              else if (idx === 1) rankEmoji = '🥈'
-              else if (idx === 2) rankEmoji = '🥉'
+        <div className='overflow-x-auto'>
+          <table>
+            <thead>
+              <tr className="bg-zinc-200/20">
+                <th className='min-w-[6rem]'>排名</th>
+                <th className='min-w-[6rem]'>頭像</th>
+                <th className='min-w-[10rem]'>暱稱</th>
+                <th className='min-w-[6rem]'>正確率</th>
+                <th className='min-w-[6rem]'>分數</th>
+                <th className='min-w-[6rem]'>作答次數</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leaderboard.map((user, idx) => {
+                let rankEmoji = '❓'
+                if (idx === 0) rankEmoji = '🥇'
+                else if (idx === 1) rankEmoji = '🥈'
+                else if (idx === 2) rankEmoji = '🥉'
 
-              return (
-                <tr key={generateId()} className="border-b text-center">
-                  {idx < 3 ? (<td key={generateId()} className="px-4 py-2 text-3xl">{rankEmoji}</td>) : (<td className="px-4 py-2">#{idx + 1}</td>)}
-                  <td key={generateId()} className="px-4 py-2 flex justify-center items-center">
-                    {/*`https://avatars.dicebear.com/api/initials/${user.name}.svg`*/}
-                    <img
-                      src={user.avatarUrl === '' ? '/img/unknown-user.png' : user.avatarUrl}
-                      alt={user.name}
-                      className="w-8 h-8 rounded-full"
-                    />
-                  </td>
-                  <td key={generateId()} className="px-4 py-2">{user.nickname || user.name}</td>
-                  <td key={generateId()} className="px-4 py-2">{(user.correctRate * 100).toFixed(2)}%</td>
-                  <td key={generateId()} className="px-4 py-2">{user.totalScore}</td>
-                  <td key={generateId()} className="px-4 py-2">{user.totalQuestions}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+                return (
+                  <tr key={generateId()}>
+                    {idx < 3 ? (<td key={generateId()} className="rankEmoji">{rankEmoji}</td>) : (<td>#{idx + 1}</td>)}
+                    <td key={generateId()}>
+                      <img
+                        className='avatar'
+                        src={user.avatarUrl === '' ? '/img/profile-icon-design-free-vector.jpg' : user.avatarUrl}
+                        alt={user.name}
+                      />
+                    </td>
+                    <td key={generateId()}>{user.nickname || user.name || '⚡'}</td>
+                    <td key={generateId()}>{(user.correctRate * 100).toFixed(2)}%</td>
+                    <td key={generateId()}>{user.totalScore}</td>
+                    <td key={generateId()}>{user.totalQuestions}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
-    </div>
+    </main>
   )
 }

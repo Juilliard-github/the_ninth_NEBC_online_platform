@@ -1,4 +1,6 @@
 'use client'
+import TimerIcon from '@mui/icons-material/Timer';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { db, auth } from '@/lib/firebase'
@@ -10,7 +12,7 @@ import { Question, isUnanswered , renderContent } from '@/types/question'
 import { Button } from '@/components/button'
 import { Exam } from '@/types/exam'
 import { Progress } from '@/components/progress'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import MatchingCanvas from '@/components/MatchingCanvas'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors
@@ -152,7 +154,7 @@ export default function TakeExamPage() {
     const unanswered = questions.filter(q => isUnanswered(q, answers[q.id], interacted) && q.type !== 'ordering')
     if (unanswered.length > 0) {
       let autoSubmitTimer: NodeJS.Timeout
-      toast.error('尚有未作答的題目，5 秒後將自動提交', {
+      toast.error('尚有未作答的題目，5秒後將自動提交', {
         duration: 5000,
         action: {
           label: '確認',
@@ -317,28 +319,24 @@ export default function TakeExamPage() {
   }
 
   if (checking) {
-    return <div className="p-6 text-center text-gray-400">檢查中...</div>
+    return <div className="p-5 text-center text-gray-400">檢查中...</div>
   }
 
   return (
-    <div className="min-h-screen w-full">
-      <Toaster richColors position='bottom-right'/>
-      <div className="max-w-5xl mx-auto space-y-5 pt-6 px-4">
-        <h1 className="text-2xl font-bold">📝 開始作答</h1>
-        {timeLeft && <div className="font-semibold">⏰ 剩餘時間：{timeLeft}</div>}
-        <Progress value={progress} className="h-2 bg-white/20" />
-        {questions.map((q, idx) => (
-          <div key={q.id} className="p-4 border rounded-md space-y-2 shadow-sm">
-            <div className="text-xl font-semibold">{renderContent(q.question)}</div>
-            {renderQuestion(q)}
-          </div>
-        ))}
-        <Button variant={`${submitted ? 'pending' : 'submit'}`} onClick={handleSubmit} disabled={submitted || submitting}>
-          {submitted ? '提交中...' : '提交作答'}
-        </Button>
-        <div className="h-10" />
-      </div>
-    </div>
+    <main>
+      <h1><PlayArrowIcon/> 開始作答</h1>
+      {timeLeft && <div className="font-semibold"><TimerIcon/> 剩餘時間：{timeLeft}</div>}
+      <Progress value={progress} className="h-2 bg-white/20" />
+      {questions.map((q, idx) => (
+        <div key={q.id} className="p-4 border rounded-md space-y-2 shadow-sm">
+          <div className="text-xl font-semibold">{renderContent(q.question)}</div>
+          {renderQuestion(q)}
+        </div>
+      ))}
+      <Button variant={`${submitted ? 'pending' : 'submit'}`} onClick={handleSubmit} disabled={submitted || submitting}>
+        {submitted ? '提交中...' : '提交作答'}
+      </Button>
+    </main>
   )
 }
 

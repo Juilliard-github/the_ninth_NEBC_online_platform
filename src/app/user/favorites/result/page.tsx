@@ -1,12 +1,16 @@
 'use client'
+import CloseIcon from '@mui/icons-material/Close';
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { useEffect, useState } from 'react'
 import { db } from '@/lib/firebase'
 import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore'
 import { Button } from '@/components/button'
-import { useUser } from '@/hooks/useUser'
+import { useUser } from '@/components/useUser'
 import { Question, renderContent, renderFeedback, renderOptions, isUnanswered, isAnswerCorrect } from '@/types/question'
 import { questionTypeLabels } from '@/components/labels'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import {
   Accordion,
   AccordionContent,
@@ -15,7 +19,7 @@ import {
 } from '@/components/accordion'
 
 export default function FavoriteResultPage() {
-  const { user } = useUser()
+  const user = useUser()
   const [questions, setQuestions] = useState<Question[]>([])
   const [answers, setAnswers] = useState<Record<string, any>>({})
   const [loading, setLoading] = useState(true)
@@ -127,18 +131,14 @@ export default function FavoriteResultPage() {
     setFavoriteIds(updatedActive)
     toast.success('已更新收藏狀態')
   }
-
-  if (loading) return <p className="p-6 text-center text-gray-400">載入中...</p>
-  if (questions.length === 0) return <p className="p-6 text-center text-gray-400">尚無錯題練習資料。</p>
+  
+  if (questions.length === 0) return <p className="p-5 text-center text-gray-400">尚無錯題練習資料。</p>
 
 
   return (
-    <main className="max-w-5xl mx-auto space-y-5">
-      <Toaster richColors position='bottom-right'/>
-      <h1 className="text-2xl font-bold">📊 錯題練習結果</h1>
+    <main>
+      <h1><QueryStatsIcon/> 錯題練習結果</h1>
       <h2 className="text-xl font-semibold">正確題數：{correctCount} / {questions.length}</h2>
-
-
       {questions.map((question, index) => {
         const answer = answers[question.id]
         const correct = isAnswerCorrect(question, answer)
@@ -159,8 +159,8 @@ export default function FavoriteResultPage() {
               <h2 className="font-semibold">
                 第 {index + 1} 題 - {questionTypeLabels[question.type]}
               </h2>
-              <Button variant="default" size="sm" onClick={() => handleToggleFavorite(question.id)}>
-                {isFavorite ? '❌ 取消收藏' : '⭐ 收藏題目'}
+              <Button variant="general" onClick={() => handleToggleFavorite(question.id)}>
+                {isFavorite ? <><CloseIcon/> 取消收藏</> : <><BookmarksIcon/> 收藏題目</>}
               </Button>
             </div>
             <div className="mb-2">{renderContent(question.question)}</div>
@@ -183,7 +183,7 @@ export default function FavoriteResultPage() {
             {!unAnswered  && renderFeedback(question, answer)}
             <Accordion type="single" collapsible className="mt-2 text-gray-400">
               <AccordionItem value="explanation">
-                <AccordionTrigger>📖 查看詳解</AccordionTrigger>
+                <AccordionTrigger><MenuBookIcon/> 查看詳解</AccordionTrigger>
                 <AccordionContent>
                   {question.explanation ? renderContent(question.explanation) : '（無詳解）'}
                 </AccordionContent>

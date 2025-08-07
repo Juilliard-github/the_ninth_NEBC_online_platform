@@ -1,5 +1,5 @@
 'use client'
-
+import AddBoxIcon from '@mui/icons-material/AddBox';
 import { useState } from 'react'
 import { serverTimestamp, addDoc, collection } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -12,9 +12,8 @@ import { renderContent } from '@/types/question'
 import SortableItem from '@/components/SortableItem_template'
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import { Input } from '@/components/input'
-import { Avatar, AvatarImage } from '@/components/avatar'
 
 export default function NewQuestionPage() {
   const generateId = () => Math.random().toString(36).substring(2, 8)
@@ -144,15 +143,13 @@ export default function NewQuestionPage() {
   }
 
   return (
-    <main className="max-w-5xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">➕ 新增題目</h1>
-      <Toaster richColors position="bottom-right" />
-
+    <main>
+      <h1><AddBoxIcon/> 新增題目</h1>
       <label className="block mb-2 font-medium">題組包類型</label>
       <select
         value={groupType}
         onChange={e => setGroupType(e.target.value as Question['groupType'])}
-        className="mb-4 p-2 border rounded w-ful bg-zinc-200/20"
+        className="mb-4 p-2 border w-full bg-zinc-200/20 border-gray-300 rounded-xl"
       >
         {Object.entries(groupTypeLabels).map(([key, label]) => (
           <option key={key} value={key}>{label}</option>
@@ -163,7 +160,7 @@ export default function NewQuestionPage() {
       <select
         value={type}
         onChange={e => setType(e.target.value as Question['type'])}
-        className="mb-4 p-2 border rounded w-full bg-zinc-200/20"
+        className="mb-4 p-2 w-full bg-zinc-200/20 border border-gray-300 rounded-xl"
       >
         {Object.entries(questionTypeLabels).map(([key, label]) => (
           <option key={key} value={key}>{label}</option>
@@ -174,9 +171,11 @@ export default function NewQuestionPage() {
       <Input className="bg-zinc-200/20" type="file" accept="image/*" onChange={handlePhotoChange} />
       {photoUrl !== '' && (
         <div className="flex justify-center items-center">
-          <Avatar className="rounded-md">
-            <AvatarImage src={photoUrl} />
-          </Avatar>
+          <img
+            alt="題目圖片"
+            className="rounded-md"
+            src={photoUrl}
+          />
         </div>
       )}
 
@@ -298,7 +297,7 @@ export default function NewQuestionPage() {
       <p className="block mb-2 font-medium">詳解預覽：</p>
       {explanation && (<div className="border p-2 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(explanation)}</div>)}
 
-      <Button variant="create" onClick={handleSave} className="mt-4 bg-fuchsia-900 text-white px-3 py-1">建立題目 💾</Button>
+      <Button variant="create" onClick={handleSave}>建立題目 💾</Button>
     </main>
   )
 }

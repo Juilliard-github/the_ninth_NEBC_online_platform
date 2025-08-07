@@ -1,4 +1,5 @@
 'use client'
+import CommentIcon from '@mui/icons-material/Comment';
 import { useEffect, useState } from 'react'
 import {
   collection,
@@ -13,7 +14,7 @@ import {
   doc,
 } from 'firebase/firestore'
 import { Button } from '@/components/button'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase'
 
@@ -106,7 +107,7 @@ export default function GuestbookPage() {
       updatedAt: serverTimestamp(),
       uid: user?.uid,
       userName: isAnonymous ? '匿名' : user?.nickname || user?.name || '訪客',
-      userPhotoURL: isAnonymous ? 'img/unknown-user.png' : user?.avatarUrl,
+      userPhotoURL: isAnonymous ? 'img/profile-icon-design-free-vector.jpg' : user?.avatarUrl,
       anonymous: isAnonymous,
       deleted: false,
       hidden: false,
@@ -164,10 +165,8 @@ export default function GuestbookPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <Toaster richColors closeButton position="bottom-right" />
-      <h1 className="text-2xl font-bold">💬 留言板</h1>
-
+    <main>
+      <h1><CommentIcon/> 留言板</h1>
       {user ? (
         <div className="space-y-2">
           <textarea
@@ -198,7 +197,7 @@ export default function GuestbookPage() {
         {messages.map((msg) => (
           <li key={msg.id}>
             {!msg.hidden && (
-            <div className="flex items-start gap-2 bg-zinc-200/20 border rounded p-3 shadow break-words">
+            <div className="comments flex items-start gap-2 bg-zinc-200/20 p-3 shadow">
               {msg.userPhotoURL ? (
                 <img
                   src={msg.userPhotoURL}
@@ -248,7 +247,7 @@ export default function GuestbookPage() {
                   <div className="flex gap-2 mt-2">
                     {/* Edit Button */}
                     {role === 'admin'|| user?.uid === msg.uid ? (
-                      <Button size="sm" 
+                      <Button
                         variant="edit"
                         onClick={() => {
                         setEditingId(msg.id)
@@ -260,7 +259,7 @@ export default function GuestbookPage() {
                     
                     {/* Delete Button */}
                     {role === 'admin' || user?.uid === msg.uid ? (
-                      <Button size="sm" 
+                      <Button
                         variant="delete"
                         onClick={() => handleDelete(msg.id)}>
                         刪除
@@ -269,7 +268,7 @@ export default function GuestbookPage() {
 
                     {/* Hide Button (Admin Only) */}
                     {role === 'admin' && (
-                      <Button size="sm" 
+                      <Button
                         variant={`${msg.hidden ? 'undo' : 'default'}`}
                         onClick={() => msg.hidden ? handleRecover(msg.id) : handleHide(msg.id)}>
                         {msg.hidden ? '復原' : '隱藏'}
@@ -283,6 +282,6 @@ export default function GuestbookPage() {
           </li>
         ))}
       </ul>
-    </div>
+    </main>
   )
 }

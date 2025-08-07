@@ -1,5 +1,6 @@
 'use client'
-
+import EditSquareIcon from '@mui/icons-material/EditSquare';
+import SaveIcon from '@mui/icons-material/Save';
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
@@ -10,10 +11,9 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from 
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import SortableItem from '@/components/SortableItem_template'
 import { Button } from '@/components/button'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import MatchingCanvas from '@/components/MatchingCanvas'
 import { Input } from '@/components/input'
-import { Avatar, AvatarImage } from '@/components/avatar'
 
 export default function EditQuestionPage() {
   const generateId = () => Math.random().toString(36).substring(2, 8)
@@ -176,21 +176,18 @@ export default function EditQuestionPage() {
     } else if (type === 'truefalse') setTrueFalseAnswer(idx === 0)
   }
 
-  if (loading) return <p className="p-6 text-gray-400 text-center">載入中...</p>
-  if (error) return <p className="p-6 text-red-600 text-center">{error}</p>
+  if (error) return <p className="p-5 text-red-600 text-center">{error}</p>
 
   return (
-    <main className="max-w-5xl mx-auto p-6 space-y-5">
-      <Toaster richColors position='bottom-right'/>
-      <h1 className="text-2xl font-bold">✏️ 編輯題目</h1>
-
+    <main>
+      <h1><EditSquareIcon/> 編輯題目</h1>
       <label>題組包類型</label>
-      <select value={groupType} onChange={e => setGroupType(e.target.value as Question['groupType'])} className="mb-4 w-full border p-2 rounded bg-zinc-200/20">
+      <select value={groupType} onChange={e => setGroupType(e.target.value as Question['groupType'])} className="mb-4 w-full border p-2 border-gray-300 rounded-xl bg-zinc-200/20">
         {Object.entries(groupTypeLabels).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
       </select>
 
       <label>題目類型</label>
-      <select value={type} onChange={e => setType(e.target.value as Question['type'])} className="mb-4 w-full border p-2 rounded bg-zinc-200/20">
+      <select value={type} onChange={e => setType(e.target.value as Question['type'])} className="mb-4 w-full border p-2 border-gray-300 rounded-xl bg-zinc-200/20">
         {Object.entries(questionTypeLabels).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
       </select>
 
@@ -198,15 +195,17 @@ export default function EditQuestionPage() {
       <Input className="bg-zinc-200/20" type="file" accept="image/*" onChange={handlePhotoChange} />
       {photoUrl !== '' && (
         <div className="flex justify-center items-center">
-          <Avatar className="rounded-md">
-            <AvatarImage src={photoUrl} />
-          </Avatar>
+          <img
+            alt="題目圖片"
+            className="rounded-md"
+            src={photoUrl} 
+          />
         </div>
       )}
 
       <label>題目內容</label>
       <textarea value={question} onChange={e => setQuestion(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/20" rows={4}/>
-      {question && (<div className="text-lg border p-2 bg-gray-50 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(question)}</div>)}
+      {question && (<div className="text-lg border p-2 rounded bg-zinc-200/20 whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(question)}</div>)}
 
       {(type === 'single' || type === 'multiple') && (
         <>
@@ -299,7 +298,7 @@ export default function EditQuestionPage() {
       <textarea value={explanation} onChange={e => setExplanation(e.target.value)} className="w-full border p-2 rounded mb-2 bg-zinc-200/20" rows={4}/>
       {explanation && (<div className="border p-2 bg-gray-50 rounded bg-zinc-200/20  whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(explanation)}</div>)}
 
-      <Button variant="submit" onClick={handleSave} className="mt-4 bg-slate-700 text-white px-3 py-1">💾 儲存更新</Button>
+      <Button variant="submit" onClick={handleSave}><SaveIcon/> 儲存更新</Button>
     </main>
   )
 }

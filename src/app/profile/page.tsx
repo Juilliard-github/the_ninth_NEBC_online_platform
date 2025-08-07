@@ -1,5 +1,6 @@
 'use client'
-
+import SettingsIcon from '@mui/icons-material/Settings';
+import SaveIcon from '@mui/icons-material/Save';
 import { useEffect, useState } from 'react'
 import { auth, db, storage } from '@/lib/firebase'
 import {
@@ -18,8 +19,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { Input } from '@/components/input'
 import { Textarea } from '@/components/textarea'
 import { Button } from '@/components/button'
-import { Avatar, AvatarImage } from '@/components/avatar'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
 export default function ProfilePage() {
@@ -120,19 +120,16 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading) return <div className="p-4 text-gray-400 text-center">載入中...</div>
-
   return (
-    <div className="max-w-5xl mx-auto space-y-5">
-      <Toaster richColors position='bottom-right'/>
-      <h1 className="text-2xl font-bold">個人資料設定</h1>
-
+    <main>
+      <h1><SettingsIcon/> 個人資料設定</h1>
       <div className="flex items-center gap-4">
-        <Avatar className="w-20 h-20 rounded-full">
-          <AvatarImage src={avatarUrl || 'img/profile-icon-design-free-vector.jpg'} />
-          {/*<AvatarFallback>{nickname ? nickname.slice(0, 2) : name ? name.slice(0, 2) : '👤'}</AvatarFallback>*/}
-        </Avatar>
-        <Input className="bg-zinc-200/20" type="file" accept="image/*" onChange={handleAvatarChange} />
+        <img
+          alt={`${name}`}
+          className="w-16 h-16 rounded-full"
+          src={avatarUrl || 'img/profile-icon-design-free-vector.jpg'}
+        />
+        <Input className="bg-zinc-200/20 w-fit cursor-pointer" type="file" accept="image/*" onChange={handleAvatarChange} />
       </div>
 
       <div className="space-y-2">
@@ -173,7 +170,7 @@ export default function ProfilePage() {
         </div>
       )}
 
-      <Button variant="submit" onClick={handleSave}>💾 儲存變更</Button>
-    </div>
+      <Button variant="submit" onClick={handleSave}><SaveIcon/> 儲存變更</Button>
+    </main>
   )
 }

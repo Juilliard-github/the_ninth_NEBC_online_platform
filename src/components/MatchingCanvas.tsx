@@ -10,9 +10,10 @@ export interface MatchingCanvasProps {
   onChange: (answers: number[]) => void
   onEdit?: (left: string[], right: string[]) => void
   readonly?: boolean
+  disabled?: boolean
 }
 
-export default function MatchingCanvas({ left, right, answers, onChange, onEdit, readonly }: MatchingCanvasProps) {
+export default function MatchingCanvas({ left, right, answers, onChange, onEdit, readonly, disabled }: MatchingCanvasProps) {
   const [selected, setSelected] = useState<{ side: 'left' | 'right'; index: number } | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const leftRefs = useRef<(HTMLDivElement | null)[]>([])
@@ -95,7 +96,7 @@ export default function MatchingCanvas({ left, right, answers, onChange, onEdit,
   }
 
   return (
-    <div ref={containerRef} className="relative bg-white p-6 border rounded shadow-sm">
+    <div ref={containerRef} className="relative bg-white p-5 border rounded shadow-sm">
       {/* 線 */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
         {lines.map((line, idx) => (

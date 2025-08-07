@@ -1,5 +1,5 @@
 'use client'
-
+import ViewListIcon from '@mui/icons-material/ViewList';
 import { useEffect, useState, useCallback } from 'react'
 import { db } from '@/lib/firebase'
 import { Exam } from '@/types/exam'
@@ -19,7 +19,7 @@ import { Button } from '@/components/button'
 import { Input } from '@/components/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/select'
 import { useRouter } from 'next/navigation'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import { renderContent } from '@/types/question'
 
 export default function ManageExamsPage() {
@@ -144,13 +144,11 @@ export default function ManageExamsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5">
-      <Toaster richColors closeButton position="bottom-right" />
-      <h1 className="text-2xl font-bold">管理已建立考試</h1>
-
-      <div className="flex flex-col sm:flex-row gap-4">
+    <main>
+      <h1><ViewListIcon/> 考試清單</h1>
+      <div className='container1'>
         <Select value={groupType!} onValueChange={(val) => setGroupType(val as Exam['groupType'])}>
-          <SelectTrigger className="w-[180px] bg-zinc-200/20">
+          <SelectTrigger className="bg-zinc-200/20 border border-gray-300 rounded-xl">
             <SelectValue placeholder="選擇類型" />
           </SelectTrigger>
           <SelectContent>
@@ -168,21 +166,20 @@ export default function ManageExamsPage() {
         />
       </div>
 
-      {loading && <p className="p-6 text-gray-400 text-center">載入中...</p>}
-      {!loading && filteredExams.length === 0 && <p>查無符合的考試</p>}
+      {filteredExams.length === 0 && <p>查無符合的考試</p>}
 
       {filteredExams.map((exam) => (
         <div
           key={exam.id}
-          className="border border-gray-300 rounded-xl p-4 shadow space-y-3 bg-zinc-200/20"
+          className="container2"
         >            
         <div className="flex justify-between items-center">
-          <span className="font-semibold text-lg">
+          <span className="font-semibold text-xl">
             {exam.title || '未命名考試'}
           </span>
           <div className="inline-flex justify-center gap-2">
             <Button variant="submit" onClick={() => router.push(`/admin/exams/${exam.id}/leaderboard`)}>排行榜</Button>
-            <Button variant="default" onClick={() => router.push(`/admin/exams/${exam.id}/result`)}>統計數據</Button>
+            <Button variant="general" onClick={() => router.push(`/admin/exams/${exam.id}/result`)}>統計數據</Button>
             <Button variant="edit" onClick={() => router.push(`/admin/exams/${exam.id}/edit`)}>編輯</Button>
             <Button variant="copy" onClick={() => handleDuplicate(exam)}>複製</Button>
             <Button variant="delete" onClick={() => handleUpdate(exam.id)}>刪除</Button>
@@ -202,6 +199,6 @@ export default function ManageExamsPage() {
           </div>
         </div>
       ))}
-    </div>
+    </main>
   )
 }

@@ -31,5 +31,5 @@ export default function AdminPage() {
   }, [router])
 
   if (loading) return <div>驗證中...</div>
-  return <div className="p-6 text-center ">歡迎管理員！</div>
+  return <div className="p-5 text-center">歡迎管理員！</div>
 }

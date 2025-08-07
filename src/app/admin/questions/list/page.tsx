@@ -1,11 +1,12 @@
 'use client'
-
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import MoreIcon from '@mui/icons-material/More';
 import { useEffect, useState, useCallback } from 'react'
 import { collection, doc, getDocs, query, orderBy, where, updateDoc, addDoc, getDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import ProtectedRoute from '@/components/ProtectedRoute'
 import 'katex/dist/katex.min.css'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import { Button } from '@/components/button'
 import {
   Accordion,
@@ -98,80 +99,73 @@ export default function QuestionListPage() {
   const filteredQuestions = filteredAll.slice(0, pageSize)
 
   return (
-    <ProtectedRoute>
-      <main className="max-w-5xl mx-auto space-y-5">
-        <Toaster richColors position='bottom-right' />
-        <h1 className="text-2xl font-bold">📚 題目清單</h1>
+    <main>
+      <h1><ViewListIcon/> 題目清單</h1>
 
-        <div className="flex flex-col md:flex-row items-center gap-4">
-          <Select value={groupType} onValueChange={val => setGroupType(val as Question['groupType'])}>
-            <SelectTrigger className="w-60 rounded-xl border-gray-300 bg-zinc-200/20">
-              <SelectValue placeholder="選擇分類" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(groupTypeLabels).map(([key, label]) => (
-                <SelectItem key={key} value={key}>{label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="border border-gray-600 focus:ring-2 focus:ring-blue-400 px-4 py-2 rounded-xl w-full transition"
-            placeholder="🔍 搜尋題目內容..."
-          />
-        </div>
-
-        {loading ? (
-          <p className="p-6 text-gray-400 text-center">載入中...</p>
-        ) : (
-          <>
-            {filteredQuestions.length === 0 && (
-              <div className="text-center">暫無題目</div>
-            )}
-            {filteredQuestions.map((q) => (
-              <div
-                key={q.id}
-                className="border border-gray-300 bg-zinc-200/20 rounded-2xl p-5 shadow-md space-y-4 transition"
-              >
-                <div className="flex justify-between">
-                  <span className="text-xl font-semibold leading-flex whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(q.question)}</span>
-                  <div className="inline-flex gap-2">
-                    <Button variant="copy" onClick={() => handleDuplicate(q)}>📄 複製</Button>
-                    <Button variant="edit" onClick={() => router.push(`/admin/questions/${q.id}/edit`)}>✏️ 編輯</Button>
-                    <Button variant="delete" onClick={() => handleDelete(q.id)}>🗑️ 刪除</Button>
-                  </div>
-                </div>
-                {q.photoUrl && (
-                  <img
-                    src={q.photoUrl}
-                    alt="題目照片"
-                  />
-                )}
-                {renderOptions(q)}
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="explanation" className="text-gray-400 whitespace-pre-wrap break-words break-all hyphens-auto">
-                    <AccordionTrigger>📖 查看詳解</AccordionTrigger>
-                    <AccordionContent>
-                        {q.explanation ? renderContent(q.explanation) : '（無詳解）'}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
+      <div className="container1">
+        <Select value={groupType} onValueChange={val => setGroupType(val as Question['groupType'])}>
+          <SelectTrigger className="w-50 rounded-xl border border-gray-300 bg-zinc-200/20">
+            <SelectValue placeholder="選擇分類" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(groupTypeLabels).map(([key, label]) => (
+              <SelectItem key={key} value={key}>{label}</SelectItem>
             ))}
+          </SelectContent>
+        </Select>
 
-            {filteredQuestions.length < filteredAll.length && (
-              <Button
-                onClick={() => setPageSize(prev => prev + 10)}
-                className="mt-3"
-              >
-                ⬇️ 載入更多
-              </Button>
-            )}
-          </>
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="border border-gray-600 focus:ring-2 focus:ring-blue-400 px-4 py-2 rounded-xl w-full transition"
+          placeholder="🔍 搜尋題目內容..."
+        />
+      </div>
+
+      <>
+        {filteredQuestions.length === 0 && (
+          <div className="text-center">暫無題目</div>
         )}
-      </main>
-    </ProtectedRoute>
+        {filteredQuestions.map((q) => (
+          <div
+            key={q.id}
+            className="container2"
+          >
+            <div className="flex justify-between">
+              <span className="text-xl font-semibold leading-flex whitespace-pre-wrap break-words break-all hyphens-auto">{renderContent(q.question)}</span>
+              <div className="inline-flex gap-2">
+                <Button variant="copy" onClick={() => handleDuplicate(q)}>📄 複製</Button>
+                <Button variant="edit" onClick={() => router.push(`/admin/questions/${q.id}/edit`)}>✏️ 編輯</Button>
+                <Button variant="delete" onClick={() => handleDelete(q.id)}>🗑️ 刪除</Button>
+              </div>
+            </div>
+            {q.photoUrl && (
+              <img
+                src={q.photoUrl}
+                alt="題目照片"
+              />
+            )}
+            {renderOptions(q)}
+            <Accordion type="single" collapsible>
+              <AccordionItem value="explanation" className="text-gray-400 whitespace-pre-wrap break-words break-all hyphens-auto">
+                <AccordionTrigger><MenuBookIcon/> 查看詳解</AccordionTrigger>
+                <AccordionContent>
+                    {q.explanation ? renderContent(q.explanation) : '（無詳解）'}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        ))}
+
+        {filteredQuestions.length < filteredAll.length && (
+          <Button
+            onClick={() => setPageSize(prev => prev + 10)}
+            className="mt-4"
+          >
+            <MoreIcon/> 載入更多
+          </Button>
+        )}
+      </>
+    </main>
   )
 }

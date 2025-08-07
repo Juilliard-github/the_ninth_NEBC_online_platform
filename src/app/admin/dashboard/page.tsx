@@ -1,4 +1,5 @@
 'use client'
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
 import { Button } from '@/components/button'
 import { useEffect, useState } from 'react'
@@ -6,7 +7,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase'
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 
 interface User {
   id: string
@@ -21,6 +22,10 @@ export default function AdminPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [users, setUsers] = useState<User[]>([])
+  const [adminUsers, setAdminUsers] = useState<User[]>([])
+  const [pendingUsers, setPendingUsers] = useState<User[]>([])
+  const [activeUsers, setActiveUsers] = useState<User[]>([])
+  const [deletedUsers, setDeletedUsers] = useState<User[]>([])
   const [theme, setTheme] = useState<string>('') 
   const [loading, setLoading] = useState<boolean>(true)
 
@@ -51,13 +56,19 @@ export default function AdminPage() {
         }
 
         setUser(userData)
-
-        // 過濾掉已刪除的用戶
-        const activeUsers = userDoc.docs
+        
+        setDeletedUsers(userDoc.docs
           .map(doc => ({ id: doc.id, ...doc.data() }))
-          .filter((user: User) => !user.deleted)
-
-        setUsers(activeUsers)
+          .filter((user: User) => user.deleted))
+        setAdminUsers(userDoc.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter((user: User) => !user.deleted && user.role==='admin'))
+        setActiveUsers(userDoc.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter((user: User) => !user.deleted && user.role==='user'))
+        setPendingUsers(userDoc.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter((user: User) => !user.deleted && user.role==='pending'))
         setTheme(currentUserDoc.data().theme || '')
         setLoading(false)
       } catch (error) {
@@ -92,10 +103,6 @@ export default function AdminPage() {
       action: {
         label: '確認',
         onClick: () => {handleDeleteUser(uid)}
-      },
-      cancel: {
-        label: '取消',
-        onClick: () => {return}
       }
     })}, 3000)
     try {
@@ -133,84 +140,101 @@ export default function AdminPage() {
     }
   }
 
-  if (loading) return <p className="p-6 text-gray-400 text-center">載入中...</p>
-
   return (
-    <main className="p-6 max-w-6xl mx-auto">
-      <Toaster richColors position="bottom-right" />
-      <h1 className="text-2xl font-bold mb-4">🔐 管理員後台</h1>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border border-gray-300 rounded-xl overflow-hidden">
-          <thead>
-            <tr className="bg-zinc-200/20 text-left">
-              <th className="border px-4 py-2 min-w-[8rem]">名稱</th>
-              <th className="border px-4 py-2 min-w-[12rem]">Email</th>
-              <th className="border px-4 py-2 min-w-[6rem]">角色</th>
-              <th className="border px-4 py-2 min-w-[16rem]">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => {
-              if (u.deleted) {
-                return (
-                  <tr key={u.id} className="hover:bg-gray-50">
-                    <td className="border px-4 py-2">{u.name || '未設定'}</td>
-                    <td className="border px-4 py-2">{u.email || '未提供'}</td>
-                    <td className="border px-4 py-2 capitalize">{u.role || 'N/A'}</td>
-                    <td className="border px-4 py-2 flex gap-2">
-                      <p className="text-gray-400 italic">(此帳號已遭刪除)</p>
-                      <Button
-                        variant="undo"
-                        onClick={() => handleUndoUser(u.id)}
-                      >
-                        回復
-                      </Button>
-                    </td>
+    <main>
+      <h1><SupervisorAccountIcon/> 管理員後台</h1>
+      {[{
+        id: 'adminUsers', title: '管理員', data: adminUsers,
+        empty: '暫無管理員資料',
+      },{
+        id: 'pendingUsers', title: '待審核', data: pendingUsers,
+        empty: '暫無待審核資料',
+      }, {
+        id: 'activeUsers', title: '使用者', data: activeUsers,
+        empty: '暫無使用者資料',
+      }, {
+        id: 'deletedUsers', title: '已刪除', data: deletedUsers,
+        empty: '暫無已刪除使用者',
+      }].map(({ id, title, data, empty}) => (
+        <section id={id} key={id}>
+          <h2 className="text-xl font-semibold">{title}</h2>
+          {data.length === 0 ? (
+            <p className="text-gray-400">{empty}</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr className="bg-zinc-200/20">
+                    <th className='min-w-[8rem]'>使用者</th>
+                    <th className='min-w-[12rem]'>Email</th>
+                    <th className='min-w-[6rem]'>角色</th>
+                    <th className='min-w-[16rem]'>操作</th>
                   </tr>
-                );
-              } else {
-                return (
-                  <tr key={u.id} className="hover:bg-gray-50">
-                    <td className="border px-4 py-2">{u.name || '未設定'}</td>
-                    <td className="border px-4 py-2">{u.email || '未提供'}</td>
-                    <td className="border px-4 py-2 capitalize">{u.role || 'N/A'}</td>
-                    <td className="border px-4 py-2">
-                      {u.role !== 'admin' ? (
-                        <div className="flex gap-2">
-                          <Button
-                            variant="submit"
-                            onClick={() => handleRoleChange(u.id, 'user')}
-                            className="bg-blue-600 text-white px-3 py-1"
-                          >
-                            設為使用者
-                          </Button>
-                          <Button
-                            variant="default"
-                            onClick={() => handleRoleChange(u.id, 'pending')}
-                            className="bg-yellow-600 text-white px-3 py-1"
-                          >
-                            設為待審
-                          </Button>
-                          <Button
-                            variant="delete"
-                            onClick={() => handleDeleteUser(u.id)}
-                            className="bg-red-600 text-white px-3 py-1"
-                          >
-                            刪除
-                          </Button>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 italic">管理員</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              }
-            })}
-          </tbody>
-        </table>
-      </div>
+                </thead>
+                <tbody>
+                  {data.map((u) => {
+                    if (u.deleted) {
+                      return (
+                        <tr key={u.id}>
+                          <td>{u.name || '未設定'}</td>
+                          <td>{u.email || '未提供'}</td>
+                          <td className="capitalize">{u.role || 'N/A'}</td>
+                          <td className="flex gap-2">
+                            <Button
+                              variant="undo"
+                              onClick={() => handleUndoUser(u.id)}
+                            >
+                              回復
+                            </Button>                
+                            <p className="text-gray-400 italic self-center">(此帳號已遭刪除)</p>
+                          </td>
+                        </tr>
+                      )
+                    } else {
+                      return (
+                        <tr key={u.id}>
+                          <td>{u.name || '未設定'}</td>
+                          <td>{u.email || '未提供'}</td>
+                          <td className="capitalize">{u.role || 'N/A'}</td>
+                          <td>
+                            {u.role !== 'admin' ? (
+                              <div className="flex gap-2">
+                                {u.role === 'pending' ? (
+                                <Button
+                                  variant="submit"
+                                  onClick={() => handleRoleChange(u.id, 'user')}
+                                >
+                                  設為使用者
+                                </Button>
+                                ) : (
+                                <Button
+                                  variant="pending"
+                                  onClick={() => handleRoleChange(u.id, 'pending')}
+                                >
+                                  設為待審
+                                </Button>
+                                )}
+                                <Button
+                                  variant="delete"
+                                  onClick={() => handleDeleteUser(u.id)}
+                                >                  
+                                  刪除
+                                </Button>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 italic">管理員</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    }
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      ))}
     </main>
   )
 }

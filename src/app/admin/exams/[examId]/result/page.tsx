@@ -1,5 +1,5 @@
 'use client'
-
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
 } from 'recharts'
@@ -106,14 +106,13 @@ export default function AdminExamResultPage() {
     }
   })
 
-  if (userAnswers.length === 0) return <div className="p-6 text-gray-400 text-center">🤔無統計資料</div>
-  if (loading || !exam) return <div className="p-6 text-gray-400 text-center">載入中...</div>
+  if (userAnswers.length === 0) return <div className="p-5 text-gray-400 text-center">🤔無統計資料</div>
+  if (!exam) return <div className="p-5 text-gray-400 text-center">載入中...</div>
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5">
-      <Toaster richColors closeButton position="bottom-right" />
-      <h1 className="text-2xl font-bold">{exam.title} 統計數據</h1>
-      <p>🏫 作答人數：{userAnswers.length}</p>
+    <main>
+      <h1>{exam.title} 統計數據</h1>
+      <p><QueryStatsIcon/> 作答人數：{userAnswers.length}</p>
       <div className="w-full h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
@@ -138,13 +137,13 @@ export default function AdminExamResultPage() {
           >
             <h2 className="font-semibold text-lg">第 {idx + 1} 題</h2>
             <div className="prose max-w-none text-xl font-semibold">{renderContent(q.question)}</div>
-            <p>✅ 正確率：{rate.toFixed(1)}%</p>
-            <p>📊 作答人數：{stats.total} 人</p>
+            <p>正確率：{rate.toFixed(1)}%</p>
+            <p>作答人數：{stats.total} 人</p>
             {renderResults(q, stats.distribution, stats.total)}
           </div>
         )
       })}
-    </div>
+    </main>
   )
 }
 

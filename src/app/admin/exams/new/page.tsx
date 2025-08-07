@@ -1,13 +1,14 @@
 'use client'
-
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import MoreIcon from '@mui/icons-material/More';
 import { useEffect, useState, useCallback } from 'react'
 import {
   collection, doc, getDocs, query, orderBy, where, Timestamp, serverTimestamp, setDoc
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import ProtectedRoute from '@/components/ProtectedRoute'
 import 'katex/dist/katex.min.css'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import { Button } from '@/components/button'
 import { useRouter } from 'next/navigation'
 import {
@@ -158,54 +159,52 @@ export default function NewExamPage() {
   }
 
   return (
-    <ProtectedRoute>
-      <main className="p-6 max-w-5xl mx-auto space-y-5">
-        <Toaster richColors closeButton position="bottom-right" />
-        <h1 className="text-2xl font-bold">💯 新增考試</h1>
+    <main>
+      <h1><AddBoxIcon/> 新增考試</h1>
+      <Input value={title} className="bg-zinc-200/20" onChange={e => setTitle(e.target.value)} placeholder="考試標題（必填）" />
+      <Textarea value={description} className="bg-zinc-200/20" onChange={e => setDescription(e.target.value)} placeholder="考試說明（選填）" />
 
-        <Input value={title} className="bg-zinc-200/20" onChange={e => setTitle(e.target.value)} placeholder="考試標題（必填）" />
-        <Textarea value={description} className="bg-zinc-200/20" onChange={e => setDescription(e.target.value)} placeholder="考試說明（選填）" />
+      <Select value={groupType} onValueChange={handleGroupTypeChange}>
+        <SelectTrigger className="w-50 bg-zinc-200/20 border border-gray-300 rounded-xl">
+          <SelectValue placeholder="選擇分類" />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(groupTypeLabels).map(([key, label]) => (
+            <SelectItem key={key} value={key}>{label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-        <Select value={groupType} onValueChange={handleGroupTypeChange}>
-          <SelectTrigger className="w-60 mt-2 bg-zinc-200/20">
-            <SelectValue placeholder="選擇分類" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(groupTypeLabels).map(([key, label]) => (
-              <SelectItem key={key} value={key}>{label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {groupType !== 'highschool' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block mb-1">測驗開始時間</label>
-              <Input
-                className='bg-zinc-200/20'
-                type="datetime-local"
-                value={openAt}
-                onChange={e => setOpenAt(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block mb-1">測驗結束時間</label>
-              <Input
-                className='bg-zinc-200/20'
-                type="datetime-local"
-                value={closeAt}
-                onChange={e => setCloseAt(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block mb-1">解答公布時間</label>
-              <Input
-                className='bg-zinc-200/20'
-                type="datetime-local"
-                value={answerAvailableAt}
-                onChange={e => setAnswerAvailableAt(e.target.value)}
-              />
-            </div>
+      {groupType !== 'highschool' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block mb-1">測驗開始時間</label>
+            <Input
+              className='bg-zinc-200/20'
+              type="datetime-local"
+              value={openAt}
+              onChange={e => setOpenAt(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1">測驗結束時間</label>
+            <Input
+              className='bg-zinc-200/20'
+              type="datetime-local"
+              value={closeAt}
+              onChange={e => setCloseAt(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1">解答公布時間</label>
+            <Input
+              className='bg-zinc-200/20'
+              type="datetime-local"
+              value={answerAvailableAt}
+              onChange={e => setAnswerAvailableAt(e.target.value)}
+            />
+          </div>
+          <div>
             <label className="block mb-1">作答時長限制（分鐘）</label>
             <Input
               className='bg-zinc-200/20'
@@ -214,53 +213,47 @@ export default function NewExamPage() {
               min="0"
               value={timeLimit}
               onChange={e => setTimeLimit(e.target.value)}
-            />
+            />          
           </div>
-        )}
+        </div>
+      )}
 
-        {loading ? (
-          <p className='p-6 text-gray-400 text-center'>載入中...</p>
-        ) : (
-          <>
-            {filteredQuestions.map((q, index) => (
-              <div key={q.id} className={`${!!selectedIds[q.id] ? 'bg-zinc-200/20' : 'bg-transparent'} border border-gray-300 rounded-xl p-4 shadow space-y-3 bg-zinc-200/20`}>
-                <div className="flex items-center gap-4">
-                  <input type="checkbox" checked={!!selectedIds[q.id]} onChange={() => toggleSelect(q.id)} />
-                  {groupType !== 'highschool' && (
-                    <Input
-                      type="number"
-                      className="w-24 bg-neutral-500/20"
-                      value={selectedIds[q.id] || ''}
-                      onChange={e => updateScore(q.id, Number(e.target.value))}
-                      disabled={!selectedIds[q.id]}
-                      placeholder="配分"
-                    />
-                  )}
-                </div>
-                <div>
-                  Q{index + 1} #{groupTypeLabels[q.groupType]} - {questionTypeLabels[q.type]}
-                </div>
-                <div className="text-xl font-semibold">{renderContent(q.question)}</div>
-                {renderOptions(q)}
-                <Accordion type="single" collapsible className="mt-3 text-gray-400">
-                  <AccordionItem value="explanation">
-                    <AccordionTrigger>📖 查看詳解</AccordionTrigger>
-                    <AccordionContent>
-                      {q.explanation ? renderContent(q.explanation) : '（無詳解）'}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
-            ))}
-            {filteredQuestions.length < filteredAll.length && (
-              <Button onClick={() => setPageSize(prev => prev + 10)} className="mt-4">
-                ⬇️ 載入更多
-              </Button>
-            )}
-          </>
+
+      <>
+        {filteredQuestions.map((q, index) => (
+          <div key={q.id} className={`${!!selectedIds[q.id] ? 'bg-zinc-200/20' : 'bg-transparent'} border border-gray-300 rounded-xl p-4 shadow space-y-3 bg-zinc-200/20`}>
+            <div className="flex items-center gap-4">
+              <input type="checkbox" checked={!!selectedIds[q.id]} onChange={() => toggleSelect(q.id)} />
+              {groupType !== 'highschool' && (
+                <Input
+                  type="number"
+                  className="w-24 bg-neutral-500/20"
+                  value={selectedIds[q.id] || ''}
+                  onChange={e => updateScore(q.id, Number(e.target.value))}
+                  disabled={!selectedIds[q.id]}
+                  placeholder="配分"
+                />
+              )}
+            </div>
+            <div className="text-xl font-semibold">{renderContent(q.question)}</div>
+            {renderOptions(q)}
+            <Accordion type="single" collapsible className="mt-3 text-gray-400">
+              <AccordionItem value="explanation">
+                <AccordionTrigger><MenuBookIcon/> 查看詳解</AccordionTrigger>
+                <AccordionContent>
+                  {q.explanation ? renderContent(q.explanation) : '（無詳解）'}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        ))}
+        {filteredQuestions.length < filteredAll.length && (
+          <Button onClick={() => setPageSize(prev => prev + 10)} className="mt-4">
+              <MoreIcon/> 載入更多
+          </Button>
         )}
-        <Button variant="create" onClick={handleSubmit}>📤 建立考試</Button>
-      </main>
-    </ProtectedRoute>
+      </>
+      <Button variant="create" onClick={handleSubmit}><AddBoxIcon/> 建立考試</Button>
+    </main>
   )
 }

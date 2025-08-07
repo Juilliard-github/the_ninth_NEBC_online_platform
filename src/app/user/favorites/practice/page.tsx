@@ -1,4 +1,5 @@
 'use client'
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { db, auth } from '@/lib/firebase'
@@ -9,7 +10,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { Question, isUnanswered , renderContent, shuffleWithAnswerSync } from '@/types/question'
 import { Button } from '@/components/button'
 import { Progress } from '@/components/progress'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import MatchingCanvas from '@/components/MatchingCanvas'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors
@@ -19,7 +20,8 @@ import {
 } from '@dnd-kit/sortable'
 import SortableItem from '@/components/SortableItem_template'
 import { arrayMove } from '@dnd-kit/sortable' 
-import { useUser } from '@/hooks/useUser'
+import { useUser } from '@/components/useUser'
+import { serverTimestamp } from 'firebase/firestore'
 
 export default function FavoritePracticePage() {
   const router = useRouter()
@@ -31,7 +33,7 @@ export default function FavoritePracticePage() {
   const [initialized, setInitialized] = useState<Record<string, boolean>>({})
   const sensors = useSensors(useSensor(PointerSensor))
   const [interacted, setInteracted] = useState<Record<string, boolean>>({})
-  const { user } = useUser()
+  const user = useUser()
   
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
@@ -111,7 +113,7 @@ export default function FavoritePracticePage() {
     if (unanswered.length > 0) {
       let autoSubmitTimer: NodeJS.Timeout
 
-      toast.error('尚有未作答的題目，5 秒後將自動提交', {
+      toast.error('尚有未作答的題目，5秒後將自動提交', {
         duration: 5000,
         action: {
           label: '確認',
@@ -255,23 +257,19 @@ export default function FavoritePracticePage() {
   }
 
   return (
-    <div className="min-h-screen w-full">
-      <Toaster richColors position='bottom-right'/>
-      <div className="max-w-5xl mx-auto space-y-5 pt-6 px-4">
-        <h1 className="text-2xl font-bold">⭐ 錯題練習</h1>
-        <Progress value={progress} className="h-2 bg-white/20" />
-        {questions.map((q, idx) => (
-          <div key={q.id} className="p-4 border rounded-md space-y-2 shadow-sm">
-            <div className="text-xl font-semibold">{renderContent(q.question)}</div>
-            {renderQuestion(q)}
-          </div>
-        ))}
-        <Button variant={`${submitted ? 'pending' : 'submit'}`} onClick={handleSubmit} disabled={submitted}>
-          {submitted ? '提交中...' : '提交作答'}
-        </Button>
-        <div className="h-10" />
-      </div>
-    </div>
+    <main>
+      <h1><BookmarksIcon/> 錯題練習</h1>
+      <Progress value={progress} className="h-2 bg-white/20" />
+      {questions.map((q, idx) => (
+        <div key={q.id} className="p-4 border rounded-md space-y-2 shadow-sm">
+          <div className="text-xl font-semibold">{renderContent(q.question)}</div>
+          {renderQuestion(q)}
+        </div>
+      ))}
+      <Button variant={`${submitted ? 'pending' : 'submit'}`} onClick={handleSubmit} disabled={submitted}>
+        {submitted ? '提交中...' : '提交作答'}
+      </Button>
+    </main>
   )
 }
 

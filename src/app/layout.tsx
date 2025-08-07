@@ -1,7 +1,7 @@
 import './globals.css' 
 import type { Metadata } from 'next'
 import LayoutClient from './LayoutClient'
-import { ThemeProvider } from '@/hooks/ThemeContext'
+import { ThemeProvider } from './themeProvider'
 import Head from 'next/head'
 import { headers } from 'next/headers'
  
@@ -14,10 +14,11 @@ export default function RootLayout({
   children,}: {children: React.ReactNode}) {
   const nonce = async() => (await headers()).get('x-nonce')
   return (
-    <html lang="zh-TW" nonce={`${nonce}`}>
+    <html lang="zh-TW" nonce={`${nonce}`} suppressHydrationWarning>
       <Head>
         <link rel="preload" href="/fonts/ChenYuluoyan-2.0-Thin.woff2" as="font" type="font/woff2" crossOrigin="anonymous"></link>
         <link rel="preload" href="/fonts/Iansui-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous"></link>
+      	<link href='/favicon.ico'/>
       </Head>
       <body>
         <ThemeProvider>

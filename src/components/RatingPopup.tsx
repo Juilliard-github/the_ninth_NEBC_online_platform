@@ -1,28 +1,33 @@
+'use client'
 import { useState } from 'react'
-import { auth, db } from '@/lib/firebase'
+import { db } from '@/lib/firebase'
 import { setDoc, doc, getDoc, collection, serverTimestamp } from 'firebase/firestore'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import { Button } from '@/components/button'
+import { useUser } from './useUser'
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 
-const RatingPopup = ({ onRatingSubmit }: { onRatingSubmit: () => void }) => {
+export const Rating = () => {
+  const [isPopupVisible, setIsPopupVisible] = useState(false)
+  const user = useUser()
   const [rating, setRating] = useState<number | null>(null)
 
+  const giveRating = () => {
+    if (user) {
+      setRating(0)
+      setIsPopupVisible(true)
+    } else {
+      toast.error('請先登入')
+    }
+  }
   // 儲存用戶評價到 Firestore
   const saveUserRating = async (rating: number) => {
-    const userId = auth.currentUser?.uid
-
-    if (!userId) {
+    if(!user){
       toast.error('請先登入')
-      setTimeout(() => {
-        // After showing the toast, force a page reload
-        window.location.reload()
-      }, 1000)
       return
     }
-
     try {
-      // 儲存評價到 userRatings 集合
-      const ratingsRef = collection(db, 'userRatings', userId, 'ratings')
+      const ratingsRef = collection(db, 'userRatings', user.uid, 'ratings')
       const totalRatingsRef = doc(db, 'analytics', 'ratings')
       const totalRatingsDoc = await getDoc(totalRatingsRef)
       if (!totalRatingsDoc.exists()) {
@@ -34,7 +39,7 @@ const RatingPopup = ({ onRatingSubmit }: { onRatingSubmit: () => void }) => {
         rating,
         timestamp: serverTimestamp(),
       })
-      await setDoc(doc(db, 'users', userId), {
+      await setDoc(doc(db, 'users', user.uid), {
         lastRatedAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       }, { merge: true })
@@ -42,42 +47,49 @@ const RatingPopup = ({ onRatingSubmit }: { onRatingSubmit: () => void }) => {
         count: count + 1,
         total: total + rating,
       })
-      toast.success('感謝您的評價！')
-      onRatingSubmit()  // 提交評分後調用這個回調來更新平均評分
+      setIsPopupVisible(false);
     } catch (err) {
       console.error('儲存評價失敗', err)
       toast.error('儲存評價失敗')
+    } finally {
+      toast.success('感謝您的評價！')
     }
   }
 
   return (
-    <div className="top-40 fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <Toaster richColors position="bottom-right" />
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 className="text-xl font-bold mb-4 text-black">請給我們評價</h2>
-        <div className="flex justify-center mb-4">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Button
-              key={star}
-              onClick={() => setRating(star)}
-              className={`shadow-none text-3xl ${rating >= star ? 'text-yellow-500' : 'text-gray-300'}`}
-            >
-              ★
-            </Button>
-          ))}
+    <>
+      <Button onClick={giveRating}><ThumbUpIcon/> 給予星級</Button>
+      {(isPopupVisible || (user && new Date(user.lastRatedAt)<new Date())) && (
+        <div className="top-40 fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-5 rounded-lg shadow-lg max-w-sm w-full">
+            <div className='flex flex-grow justify-between text-black mb-4'>
+              <h2 className="font-bold">請給我們評價</h2>
+              <Button className='shadow-none pr-2 text-xl' onClick={() => setIsPopupVisible(false)}>x</Button>
+            </div>
+
+            <div className="flex justify-center mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Button
+                  key={star}
+                  onClick={() => setRating(star)}
+                  className={`shadow-none text-3xl ${rating || 0 >= star ? 'text-yellow-500' : 'text-gray-300'}`}
+                >
+                  ★
+                </Button>
+              ))}
+            </div>
+            <div className="flex justify-center mt-4">
+              <Button
+                onClick={() => saveUserRating(rating!)}
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+                disabled={rating === null}
+              >
+              提交評價
+              </Button>
+            </div>
+          </div>
         </div>
-        <div className="flex justify-center mt-4">
-          <Button
-            onClick={() => saveUserRating(rating!)}
-            className="bg-blue-500 text-white py-2 px-4 rounded"
-            disabled={rating === null}
-          >
-          提交評價
-          </Button>
-        </div>
-      </div>
-    </div>
+      )}
+    </>
   )
 }
-
-export default RatingPopup
