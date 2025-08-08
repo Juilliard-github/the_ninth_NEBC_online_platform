@@ -6,6 +6,8 @@ import { toast } from 'sonner'
 import { Button } from '@/components/button'
 import { useUser } from './useUser'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import StarIcon from '@mui/icons-material/Star';
 
 export const Rating = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false)
@@ -63,7 +65,7 @@ export const Rating = () => {
         <div className="top-40 fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-5 rounded-lg shadow-lg max-w-sm w-full">
             <div className='flex flex-grow justify-between text-black mb-4'>
-              <h2 className="font-bold">請給我們評價</h2>
+              <h1>請給我們評價</h1>
               <Button className='shadow-none pr-2 text-xl' onClick={() => setIsPopupVisible(false)}>x</Button>
             </div>
 
@@ -74,14 +76,14 @@ export const Rating = () => {
                   onClick={() => setRating(star)}
                   className={`shadow-none text-3xl ${rating || 0 >= star ? 'text-yellow-500' : 'text-gray-300'}`}
                 >
-                  ★
+                  {`${rating || 0 >= star ? <StarIcon/> : <StarBorderIcon/>}`}
                 </Button>
               ))}
             </div>
             <div className="flex justify-center mt-4">
               <Button
                 onClick={() => saveUserRating(rating!)}
-                className="bg-blue-500 text-white py-2 px-4 rounded"
+                variant='submit'
                 disabled={rating === null}
               >
               提交評價

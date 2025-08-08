@@ -24,7 +24,6 @@ interface SimplifiedUserData {
 
 export default function GlobalLeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<SimplifiedUserData[]>([])
-  const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<'correctRate' | 'totalScore'>('totalScore')
   const generateId = () => Math.random().toString()   
   const { examId } = useParams()
@@ -32,8 +31,6 @@ export default function GlobalLeaderboardPage() {
 
   useEffect(() => {
     const fetchScores = async () => {
-      setLoading(true)
-
       const usersSnap = await getDocs(collection(db, 'users'))
       const userMap: Record<string, SimplifiedUserProfile> = {}
       // Loop through users to collect data
@@ -96,7 +93,6 @@ export default function GlobalLeaderboardPage() {
       })
 
       setLeaderboard(sorted)
-      setLoading(false)
     }
     fetchScores()
   }, [examId, sortBy])

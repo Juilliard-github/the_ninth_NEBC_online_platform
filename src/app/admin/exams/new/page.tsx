@@ -23,8 +23,8 @@ import {
 import { Input } from '@/components/input'
 import { Textarea } from '@/components/textarea'
 import { Question, renderContent, renderOptions } from '@/types/question'
-import { questionTypeLabels, groupTypeLabels } from '@/components/labels'
 import { v4 as uuidv4 } from 'uuid'
+import { groupTypeLabels } from '@/components/labels';
 
 export default function NewExamPage() {
   const [questions, setQuestions] = useState<Question[]>([])
@@ -38,11 +38,9 @@ export default function NewExamPage() {
   const [timeLimit, setTimeLimit] = useState('')
   const [search, setSearch] = useState('')
   const [pageSize, setPageSize] = useState(10)
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   const fetchQuestions = useCallback(async () => {
-    setLoading(true)
     const qSnap = await getDocs(query(
       collection(db, 'questions'),
       orderBy('createdAt', 'desc'),
@@ -50,7 +48,6 @@ export default function NewExamPage() {
     ))
     const data = qSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question))
     setQuestions(data)
-    setLoading(false)
   }, [])
 
   useEffect(() => {

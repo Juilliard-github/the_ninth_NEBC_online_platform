@@ -16,7 +16,6 @@ interface SimplifiedUser {
 
 export default function GlobalLeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<SimplifiedUser[]>([])
-  const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<'correctRate' | 'totalScore'>('totalScore') // 排序依據，默認根據分數排序
   const generateId = () => Math.random().toString()
 
@@ -58,7 +57,6 @@ export default function GlobalLeaderboardPage() {
       })
 
       setLeaderboard(sorted)
-      setLoading(false)
     }
 
     fetchScores()

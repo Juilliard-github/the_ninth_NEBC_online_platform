@@ -39,11 +39,9 @@ export default function ExamEditPage() {
   const [timeLimit, setTimeLimit] = useState('')
   const [search, setSearch] = useState('')
   const [pageSize, setPageSize] = useState(10)
-  const [loading, setLoading] = useState(false)
 
 
   const fetchQuestions = useCallback(async () => {
-    setLoading(true)
     const qSnap = await getDocs(query(
       collection(db, 'questions'),
       orderBy('createdAt', 'desc'),
@@ -51,7 +49,6 @@ export default function ExamEditPage() {
     ))
     const data = qSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question))
     setQuestions(data)
-    setLoading(false)
   }, [])
 
 
@@ -230,7 +227,6 @@ export default function ExamEditPage() {
           </div>
         </div>
       )}
-
       {groupType && groupType !== 'highschool' && (
         <div>
           <label className="block mb-1">作答時長限制（分鐘）</label>
@@ -242,44 +238,37 @@ export default function ExamEditPage() {
           />
         </div>
       )}
-
-      {loading ? (
-        <p className="p-5 text-gray-400 text-center">載入中...</p>
-      ) : (
-        <>
-          {filteredQuestions.map((q, index) => (
-            <div key={q.id} className={`${!!selectedIds[q.id] ? 'bg-zinc-200/20' : 'bg-transparent'} border border-gray-300 rounded-xl p-4 shadow space-y-3`}>
-              <div className="flex items-center gap-4">
-                <input type="checkbox" checked={!!selectedIds[q.id]} onChange={() => toggleSelect(q.id)} />
-                {groupType !== 'highschool' && (
-                  <Input
-                    type="number"
-                    className="w-24 bg-neutral-500/20"
-                    value={selectedIds[q.id] || ''}
-                    onChange={e => updateScore(q.id, Number(e.target.value))}
-                    disabled={!selectedIds[q.id]}
-                    placeholder="配分"
-                  />
-                )}
-              </div>
-              <div className="text-xl font-semibold">{renderContent(q.question)}</div>
-              {renderOptions(q)}
-              <Accordion type="single" collapsible className="mt-3">
-                <AccordionItem value="explanation" className="text-gray-400">
-                  <AccordionTrigger><MenuBookIcon/> 查看詳解 </AccordionTrigger>
-                  <AccordionContent>
-                    {q.explanation ? renderContent(q.explanation) : '（無詳解）'}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          ))}
-          {filteredQuestions.length < filteredAll.length && (
-            <Button onClick={() => setPageSize(prev => prev + 10)} className='"mt-4'>
-              <MoreIcon/> 載入更多
-            </Button>
-          )}
-        </>
+      {filteredQuestions.map((q, index) => (
+        <div key={q.id} className={`${!!selectedIds[q.id] ? 'bg-zinc-200/20' : 'bg-transparent'} border border-gray-300 rounded-xl p-4 shadow space-y-3`}>
+          <div className="flex items-center gap-4">
+            <input type="checkbox" checked={!!selectedIds[q.id]} onChange={() => toggleSelect(q.id)} />
+            {groupType !== 'highschool' && (
+              <Input
+                type="number"
+                className="w-24 bg-neutral-500/20"
+                value={selectedIds[q.id] || ''}
+                onChange={e => updateScore(q.id, Number(e.target.value))}
+                disabled={!selectedIds[q.id]}
+                placeholder="配分"
+              />
+            )}
+          </div>
+          <div className="text-xl font-semibold">{renderContent(q.question)}</div>
+          {renderOptions(q)}
+          <Accordion type="single" collapsible className="mt-3">
+            <AccordionItem value="explanation" className="text-gray-400">
+              <AccordionTrigger><MenuBookIcon/> 查看詳解 </AccordionTrigger>
+              <AccordionContent>
+                {q.explanation ? renderContent(q.explanation) : '（無詳解）'}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      ))}
+      {filteredQuestions.length < filteredAll.length && (
+        <Button onClick={() => setPageSize(prev => prev + 10)} className='"mt-4'>
+          <MoreIcon/> 載入更多
+        </Button>
       )}
       <Button variant="submit" onClick={handleSubmit}><SaveIcon/> 儲存變更</Button>
     </main>

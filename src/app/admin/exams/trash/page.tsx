@@ -12,10 +12,8 @@ import { Exam } from '@/types/exam'
 
 export default function DeletedExamsPage() {
   const [deletedExams, setDeletedExams] = useState<Exam[]>([])
-  const [loading, setLoading] = useState(true)
 
   const fetchDeletedExams = useCallback(async () => {
-    setLoading(true)
     try {
       const qSnap = await getDocs(query(
         collection(db, 'exams'),
@@ -27,9 +25,7 @@ export default function DeletedExamsPage() {
     } catch (e) {
       console.error('載入失敗，可能需要建立 Firebase 索引', e)
       toast.error('無法載入已刪除考試')
-    } finally {
-      setLoading(false)
-    }
+    } 
   }, [])
 
   useEffect(() => {

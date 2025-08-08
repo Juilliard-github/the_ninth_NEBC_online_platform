@@ -5,7 +5,7 @@ import { Button } from '@/components/button'
 import { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase'
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'
+import { collection, getDocs, doc, updateDoc, where, query } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
@@ -26,8 +26,6 @@ export default function AdminPage() {
   const [pendingUsers, setPendingUsers] = useState<User[]>([])
   const [activeUsers, setActiveUsers] = useState<User[]>([])
   const [deletedUsers, setDeletedUsers] = useState<User[]>([])
-  const [theme, setTheme] = useState<string>('') 
-  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -56,21 +54,11 @@ export default function AdminPage() {
         }
 
         setUser(userData)
-        
-        setDeletedUsers(userDoc.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
-          .filter((user: User) => user.deleted))
-        setAdminUsers(userDoc.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
-          .filter((user: User) => !user.deleted && user.role==='admin'))
-        setActiveUsers(userDoc.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
-          .filter((user: User) => !user.deleted && user.role==='user'))
-        setPendingUsers(userDoc.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
-          .filter((user: User) => !user.deleted && user.role==='pending'))
-        setTheme(currentUserDoc.data().theme || '')
-        setLoading(false)
+
+        setDeletedUsers((await getDocs(query(collection(db, 'users'), where("deleted", '==', true)))).docs.map(doc => ({id: doc.id, ...doc.data() } as User)))
+        setAdminUsers((await getDocs(query(collection(db, 'users'), where("deleted", "==", false), where("role", '==', "admin")))).docs.map(doc => ({id: doc.id, ...doc.data() } as User)))
+        setActiveUsers((await getDocs(query(collection(db, 'users'), where("deleted", "==", false), where("role", '==', "user")))).docs.map(doc => ({id: doc.id, ...doc.data() } as User)))
+        setPendingUsers((await getDocs(query(collection(db, 'users'), where("deleted", "==", false), where("role", '==', "pending")))).docs.map(doc => ({id: doc.id, ...doc.data() } as User)))
       } catch (error) {
         console.error('Error fetching users', error)
         toast.error('無法載入使用者資料，請稍後再試。')

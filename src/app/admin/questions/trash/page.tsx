@@ -26,10 +26,8 @@ import {
 
 export default function TrashPage() {
   const [questions, setQuestions] = useState<Question[]>([])
-  const [loading, setLoading] = useState(true)
 
   const fetchDeletedQuestions = useCallback(async () => {
-    setLoading(true)
     const qSnap = await getDocs(query(
       collection(db, 'questions'),
       orderBy('createdAt', 'desc'),
@@ -37,7 +35,6 @@ export default function TrashPage() {
     ))
     const data = qSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question))
     setQuestions(data)
-    setLoading(false)
   }, [])
 
 

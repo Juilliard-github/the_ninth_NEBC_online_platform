@@ -19,8 +19,6 @@ export default function EditQuestionPage() {
   const generateId = () => Math.random().toString(36).substring(2, 8)
   const { questionId } = useParams<{ questionId: string }>()
   const router = useRouter()
-
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [groupType, setGroupType] = useState<Question['groupType']>('highschool')
   const [type, setType] = useState<Question['type']>('single')
@@ -70,13 +68,10 @@ export default function EditQuestionPage() {
           setMatchingRight(data.right || [])
           setMatchingAnswer(data.answers as number[])
         }
-
-        setLoading(false)
       })
       .catch(err => {
         console.error(err)
         setError('載入失敗')
-        setLoading(false)
       })
   }, [questionId])
 

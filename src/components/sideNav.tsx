@@ -5,7 +5,7 @@ import { SignInUser } from '@/components/signIn'
 import { signOutUser } from '@/components/signOut'
 import Link from "next/link"
 import { useState } from 'react'
-import { Rating } from './ratingPopup'
+import { Rating } from '@/components/ratingPopup'
 import HomeIcon from '@mui/icons-material/Home';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
@@ -21,6 +21,7 @@ import CommentIcon from '@mui/icons-material/Comment';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import LoginIcon from '@mui/icons-material/Login';
 import DrawIcon from '@mui/icons-material/Draw';
+import MenuIcon from '@mui/icons-material/Menu';
 
 export const SideNav = () => {
   const user = useUser()
@@ -39,7 +40,7 @@ export const SideNav = () => {
           </Link>            
           <div>
             <Button onClick={() => {openSideBar === true ? setOpenSideBar(false) : setOpenSideBar(true)}} className={`noEffect ${openSideBar ? 'rotate-90' : 'rotate-0'}`}>
-              ☰
+              <MenuIcon/>
             </Button>
             {openSideBar && (     
               <div className='hamburger'>

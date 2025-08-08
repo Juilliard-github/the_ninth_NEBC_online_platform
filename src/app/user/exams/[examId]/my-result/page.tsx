@@ -23,7 +23,6 @@ export default function MyResultPage() {
   const { examId } = useParams()
   const [userAnswers, setUserAnswers] = useState<any>()
   const [questions, setQuestions] = useState<Record<string, Question>>({})
-  const [loading, setLoading] = useState(true)
   const [exam, setExam] = useState<any>(null)
   const [scoreMap, setScoreMap] = useState<Record<string, number>>({})
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
@@ -39,15 +38,11 @@ export default function MyResultPage() {
     const loadData = async () => {
       if (!examId || !user) return
 
-      setLoading(true)
-
       try {
         const uaId = `${examId}_${user.uid}`
         const uaRef = doc(db, 'userAnswers', uaId)
         const uaSnap = await getDoc(uaRef)
-
         if (!uaSnap.exists()) {
-          setLoading(false)
           return
         }
         setUserAnswers(uaSnap.data())
@@ -55,7 +50,6 @@ export default function MyResultPage() {
         const examSnap = await getDoc(doc(db, 'exams', examId as string))
         const exam = examSnap.data()
         if (!exam) return
-
         setExam(exam)
 
         const scoreMap: Record<string, number> = {}
@@ -130,8 +124,6 @@ export default function MyResultPage() {
         await setDoc(userRef, userPayload, {merge: true})
       } catch (err) {
         console.error('更新成績失敗:', err)
-      } finally {
-        setLoading(false)
       }
     }
 

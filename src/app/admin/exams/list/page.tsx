@@ -25,7 +25,6 @@ import { renderContent } from '@/types/question'
 export default function ManageExamsPage() {
   const [allExams, setAllExams] = useState<Exam[]>([])
   const [filteredExams, setFilteredExams] = useState<Exam[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const router = useRouter()
   const [groupType, setGroupType] = useState<Exam['groupType']>('highschool')
@@ -41,7 +40,6 @@ export default function ManageExamsPage() {
 
 
   const fetchExams = useCallback(async () => {
-    setLoading(true)
     try {
       const q = query(
         collection(db, 'exams'),
@@ -54,8 +52,6 @@ export default function ManageExamsPage() {
     } catch (e) {
       toast.error('無法取得資料（可能需要建立 Firestore 索引）')
       console.error(e)
-    } finally {
-      setLoading(false)
     }
   }, [])
 

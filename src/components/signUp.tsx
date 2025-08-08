@@ -4,7 +4,7 @@ import { sha256 } from 'js-sha256'
 import { useUser } from './useUser'
 import { auth, db } from '@/lib/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
@@ -91,8 +91,7 @@ export function SignUp() {
     }
   }
   return (
-    <>
-      <Toaster position='bottom-right' richColors/>
+    <main>
       {isAdminPromptVisible && (
         <div className="shadow item-center text-center">
           <p>請選擇是否為管理員</p>
@@ -117,6 +116,6 @@ export function SignUp() {
         </div>
         </div>
       )}
-    </>
+    </main>
   )
 }

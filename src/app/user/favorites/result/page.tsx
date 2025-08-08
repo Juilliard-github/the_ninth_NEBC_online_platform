@@ -22,7 +22,6 @@ export default function FavoriteResultPage() {
   const user = useUser()
   const [questions, setQuestions] = useState<Question[]>([])
   const [answers, setAnswers] = useState<Record<string, any>>({})
-  const [loading, setLoading] = useState(true)
   const [correctCount, setCorrectCount] = useState(0)
   const [favoriteIds, setFavoriteIds] = useState<string[]>([])
 
@@ -34,11 +33,8 @@ export default function FavoriteResultPage() {
         const resultSnap = await getDoc(doc(db, 'users', user.uid, 'favoritePractice', 'lastAttempt'))
         if (!resultSnap.exists()) {
           toast.warning('無資料')
-          setLoading(false)
           return
         }
-
-
         const result = resultSnap.data()
         const answers = result.answers || {}
         const qids: string[] = result.questionIds || []
@@ -99,8 +95,6 @@ export default function FavoriteResultPage() {
       } catch (err) {
         console.error('讀取錯誤練習結果失敗:', err)
         toast.error('載入錯誤，請稍後再試')
-      } finally {
-        setLoading(false)
       }
     }
 

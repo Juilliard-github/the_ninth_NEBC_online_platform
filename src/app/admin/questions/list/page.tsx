@@ -25,7 +25,6 @@ export default function QuestionListPage() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [search, setSearch] = useState('')
   const [groupType, setGroupType] = useState<Question['groupType']>('highschool')
-  const [loading, setLoading] = useState(true)
   const [pageSize, setPageSize] = useState(10)
   const router = useRouter()
 
@@ -38,7 +37,6 @@ export default function QuestionListPage() {
   }, [])
 
   const fetchQuestions = useCallback(async () => {
-    setLoading(true)
     const qSnap = await getDocs(query(
       collection(db, 'questions'),
       orderBy('createdAt', 'desc'),
@@ -46,7 +44,6 @@ export default function QuestionListPage() {
     ))
     const data = qSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question))
     setQuestions(data)
-    setLoading(false)
   }, [])
 
   useEffect(() => {

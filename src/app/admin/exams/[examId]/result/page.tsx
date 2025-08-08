@@ -9,18 +9,15 @@ import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firesto
 import { db } from '@/lib/firebase'
 import { Exam } from '@/types/exam'
 import { Question, renderContent, renderResults } from '@/types/question'
-import { Toaster, toast } from 'sonner'
 
 export default function AdminExamResultPage() {
   const { examId } = useParams()
   const [exam, setExam] = useState<Exam | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
   const [userAnswers, setUserAnswers] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
       const examSnap = await getDoc(doc(db, 'exams', examId as string))
       if (!examSnap.exists()) return
 
@@ -42,7 +39,6 @@ export default function AdminExamResultPage() {
       )
       const allAnswers = answerSnap.docs.map(doc => doc.data())
       setUserAnswers(allAnswers)
-      setLoading(false)
     }
     fetchData()
   }, [examId])

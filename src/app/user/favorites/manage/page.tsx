@@ -25,20 +25,15 @@ type FavoriteQuestion = Question & { isDeleted: boolean }
 export default function FavoriteManagePage() {
   const user = useUser()
   const [favorites, setFavorites] = useState<FavoriteQuestion[]>([])
-  const [loading, setLoading] = useState(true)
 
   const fetchFavorites = useCallback(async () => {
     if (!user) return
-    setLoading(true)
-
     const favCollectionRef = collection(db, 'users', user.uid, 'favorites')
     const favSnap = await getDocs(favCollectionRef)
-
     const favMetaList = favSnap.docs.map(doc => ({
       id: doc.id,
       deleted: doc.data().deleted ?? false,
     }))
-
     const questionSnaps = await Promise.all(
       favMetaList.map(fav => getDoc(doc(db, 'questions', fav.id)))
     )
@@ -56,7 +51,6 @@ export default function FavoriteManagePage() {
       .filter(Boolean) as FavoriteQuestion[]
 
     setFavorites(combined)
-    setLoading(false)
   }, [user])
 
   useEffect(() => {

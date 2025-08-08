@@ -33,7 +33,6 @@ export default function ProfilePage() {
   const [bio, setBio] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [loading, setLoading] = useState(true)
   const [uploadProgress, setUploadProgress] = useState(0) // 新增進度狀態
 
   useEffect(() => {
@@ -56,7 +55,6 @@ export default function ProfilePage() {
           setCreatedAt(data.createdAt?.toDate().toLocaleString() || '')
           setLastRatedAt(data.lastRatedAt?.toDate().toLocaleString() || '')
         }
-        setLoading(false)
       }
     })
     return () => unsub()

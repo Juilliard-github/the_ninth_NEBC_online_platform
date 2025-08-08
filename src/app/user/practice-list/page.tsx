@@ -25,7 +25,6 @@ export default function PracticeListPage() {
   const router = useRouter()
   const [exams, setExams] = useState<Exam[]>([])
   const [highschoolExams, setHighschoolExams] = useState<Exam[]>([])
-  const [loading, setLoading] = useState(true)
   const [now, setNow] = useState(new Date())
   const [answeredExamIds, setAnsweredExamIds] = useState<Set<string>>(new Set())
   const pathname = usePathname()
@@ -61,7 +60,6 @@ export default function PracticeListPage() {
   }, [])
 
   const fetchData = useCallback(async () => {
-    setLoading(true)
     try {
       const examSnap = await getDocs(query(
         collection(db, 'exams'),
@@ -87,8 +85,6 @@ export default function PracticeListPage() {
     } catch (e) {
       toast.error('無法取得資料')
       console.error(e)
-    } finally {
-      setLoading(false)
     }
   }, [])
 
