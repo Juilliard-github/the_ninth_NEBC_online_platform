@@ -4,12 +4,12 @@ import { db } from '@/lib/firebase'
 import { setDoc, doc, getDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { toast } from 'sonner'
 import { Button } from '@/components/button'
-import { useUser } from './useUser'
+import { useUser } from '@/components//useUser'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
 
-export const Rating = () => {
+export const RatingPopup = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false)
   const user = useUser()
   const [rating, setRating] = useState<number | null>(null)

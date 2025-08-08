@@ -2,7 +2,7 @@ import { signInWithPopup, GoogleAuthProvider} from 'firebase/auth'
 import { toast } from 'sonner'
 import { auth, db } from '@/lib/firebase'
 import { doc, getDoc } from 'firebase/firestore'
-import { incrementVisitorCount } from './incrementVisitor'
+import { incrementVisitorCount } from '@/components/incrementVisitor'
 export const SignInUser = async () => {
   incrementVisitorCount()
   const provider = new GoogleAuthProvider()

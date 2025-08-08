@@ -11,7 +11,7 @@ import { getAuth } from 'firebase/auth'
 import { Question, renderContent, renderFeedback, isUnanswered, isAnswerCorrect } from '@/types/question'
 import { Button } from '@/components/button'
 import { toast } from 'sonner'
-import { renderOptions } from '../../../../../types/question'
+import { renderOptions } from '@/types/question';
 import {
   Accordion,
   AccordionContent,

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/button'
 import { sha256 } from 'js-sha256'
-import { useUser } from './useUser'
+import { useUser } from '@/components/useUser'
 import { auth, db } from '@/lib/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'

@@ -1,6 +1,6 @@
-import { OnlineUserCount } from './onlineUserCount'
-import { TotalVisitors } from './totalVisitors'
-import { AverageRating } from './fetchRating'
+import { OnlineUserCount } from '@/components/onlineUserCount'
+import { TotalVisitors } from '@/components/totalVisitors'
+import { AverageRating } from '@/components/fetchRating'
 
 export default function Stats() {
   return (

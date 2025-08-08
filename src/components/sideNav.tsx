@@ -1,11 +1,11 @@
 'use client'
-import { useUser } from './useUser'
-import { Button } from "./button"
+import { useUser } from '@/components/useUser'
+import { Button } from "@/components/button"
 import { SignInUser } from '@/components/signIn'
 import { signOutUser } from '@/components/signOut'
 import Link from "next/link"
 import { useState } from 'react'
-import { Rating } from '@/components/ratingPopup'
+import { RatingPopup } from '@/components/ratingPopup'
 import HomeIcon from '@mui/icons-material/Home';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
@@ -70,7 +70,7 @@ export const SideNav = () => {
                     <Link href="/user/favorites/manage"><BookmarksIcon/> 錯題收藏管理</Link>
                   </div>
                 )}
-                <Rating/>
+                <RatingPopup/>
                 <Button onClick={() => {signOutUser; setOpenSideBar(false)}}><LogoutIcon/> 登出</Button>
               </div>
             )}
